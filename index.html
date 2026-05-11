@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Freud Eliow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+:root{--bg:#000;--s1:#111;--s2:#1a1a1a;--s3:#252525;--border:#2a2a2a;--coral:#e8583a;--amber:#f0a500;--teal:#2dd4bf;--blue:#3b82f6;--purple:#a855f7;--green:#22c55e;--red:#ef4444;--text:#fff;--muted:#666;--muted2:#999}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100%;overflow:hidden}
+button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+input,select{font-family:'DM Sans',sans-serif}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(20px);z-index:50}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px}
+.logo span{color:var(--coral)}
+.top-date{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2)}
+.screens{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;display:none;padding:14px 14px 80px}
+.screen.active{display:block}
+.bottom-nav{display:flex;flex-shrink:0;background:rgba(0,0,0,0.97);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,4px);z-index:50}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;gap:3px;background:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.15s}
+.nav-btn.active{color:var(--coral)}
+.nav-icon{font-size:18px;line-height:1}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.sec-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.bebas{font-family:'Bebas Neue',sans-serif}
+.mono{font-family:'Space Mono',monospace}
+.risk-circle{width:100px;height:100px;border-radius:50%;border:3px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 14px;transition:border-color 0.4s}
+.risk-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;transition:color 0.4s}
+.risk-lbl-sm{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase}
+.risk-bar{height:8px;background:var(--s3);border-radius:50px;overflow:hidden;margin:10px 0}
+.risk-fill{height:100%;border-radius:50px;transition:width 0.5s,background 0.4s}
+.risk-verdict{text-align:center;padding:11px 14px;border-radius:10px;font-weight:600;font-size:14px;margin-bottom:14px;transition:all 0.3s}
+.factor-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.factor-row:last-child{border-bottom:none}
+.f-name{font-size:14px;font-weight:500}
+.f-sub{font-size:11px;color:var(--muted2);margin-top:1px}
+.f-tog{display:flex;gap:6px}
+.ftbtn{padding:6px 12px;border-radius:50px;font-family:'Space Mono',monospace;font-size:10px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);transition:all 0.15s}
+.ftbtn.yes{background:rgba(239,68,68,0.2);color:var(--red);border-color:rgba(239,68,68,0.4)}
+.ftbtn.no{background:rgba(34,197,94,0.15);color:var(--green);border-color:rgba(34,197,94,0.3)}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.cal-nav{background:var(--s2);border:1px solid var(--border);color:var(--muted2);border-radius:8px;padding:6px 14px;font-size:16px}
+.cal-dn{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.cal-d{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-align:center;padding:4px 0;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--s2);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.cal-cell.today{border-color:var(--coral);color:var(--text);font-weight:700}
+.cal-cell.victory{background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.4);color:var(--green);font-weight:700}
+.cal-cell.defeat{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.25);color:var(--red)}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-marks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.cal-mark-btn{padding:12px;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;border:1px solid;cursor:pointer}
+.cal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.cst{background:var(--s2);border-radius:10px;padding:10px;text-align:center}
+.cst-n{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1}
+.cst-l{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted2);text-transform:uppercase;margin-top:2px}
+.act-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px}
+.act-hdr{display:flex;align-items:center;gap:12px;cursor:pointer}
+.act-icon{font-size:28px;min-width:40px;text-align:center}
+.act-title{font-weight:700;font-size:15px;margin-bottom:2px}
+.act-sub{font-size:12px;color:var(--muted2)}
+.act-eff-num{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;text-align:right}
+.act-eff-lbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);text-align:right}
+.eff-bar{height:6px;background:var(--s3);border-radius:50px;overflow:hidden;margin:10px 0 0}
+.eff-fill{height:100%;border-radius:50px}
+.act-expand{display:none;padding-top:12px;border-top:1px solid var(--border);margin-top:10px}
+.act-expand.show{display:block}
+.aw-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.aw-text{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:10px}
+.aw-tip{background:rgba(45,212,191,0.08);border-radius:8px;padding:10px;font-size:13px;color:var(--muted2);margin-bottom:10px}
+.aw-best{font-size:12px;color:var(--teal);margin-bottom:10px}
+.do-btn{width:100%;padding:12px;border-radius:10px;background:var(--coral);color:white;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;cursor:pointer}
+.focus-ring{width:180px;height:180px;position:relative;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.focus-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ft-arc{transition:stroke-dashoffset 1s linear}
+.f-time{font-family:'Bebas Neue',sans-serif;font-size:58px;color:var(--blue);line-height:1;transition:color 0.4s}
+.f-phase{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);margin-top:3px}
+.f-presets{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.fpre{font-family:'Bebas Neue',sans-serif;font-size:17px;padding:8px 14px;border-radius:10px;background:var(--s2);border:1px solid var(--border);color:var(--muted2);cursor:pointer}
+.fpre.fa{background:var(--blue);color:#000;border-color:var(--blue)}
+.f-btns{display:flex;gap:10px;justify-content:center}
+.fbtn{padding:12px 26px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+.fbtn-p{background:var(--s2);border:1px solid var(--border);color:var(--text)}
+.fbtn-c{background:none;border:1px solid var(--border);color:var(--muted2)}
+.icard{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.i-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--blue);margin-bottom:10px}
+.i-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.i-row:last-child{border-bottom:none}
+.i-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all 0.2s;flex-shrink:0;color:var(--muted)}
+.i-chk.on{background:var(--blue);border-color:var(--blue);color:#000}
+.i-text{font-size:14px}
+.mantra{background:var(--s1);border-left:3px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:10px}
+.m-text{font-size:14px;line-height:1.6;font-style:italic}
+.m-src{font-size:11px;color:var(--muted2);margin-top:5px}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--teal);color:#000;padding:9px 22px;border-radius:50px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:transform 0.3s;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top-bar">
+  <div class="logo">FREUD <span>ELIOW</span></div>
+  <div class="top-date" id="topDate"></div>
+</div>
+<div class="screens">
+
+<div id="sc-risk" class="screen active">
+  <div class="card" style="text-align:center;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:2px;margin-bottom:10px">CALCULADORA DE RIESGO</div>
+    <div class="risk-circle" id="rCircle">
+      <div class="risk-num" id="rNum" style="color:var(--green)">0</div>
+      <div class="risk-lbl-sm">riesgo</div>
+    </div>
+    <div class="risk-bar"><div class="risk-fill" id="rFill" style="width:0%;background:var(--green)"></div></div>
+    <div class="risk-verdict" id="rVerdict" style="background:rgba(34,197,94,0.1);color:var(--green)">Riesgo bajo — estás bien</div>
+    <div id="factorList"></div>
+  </div>
+  <div class="card">
+    <div style="font-weight:600;font-size:14px;margin-bottom:8px">¿Qué hora es ahora?</div>
+    <input type="time" id="curTime" style="width:100%;padding:10px;background:var(--s2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:15px;outline:none;">
+    <div id="timeMsg" style="margin-top:10px;font-size:13px;color:var(--muted2);line-height:1.5;"></div>
+  </div>
+</div>
+
+<div id="sc-cal" class="screen">
+  <div class="card">
+    <div class="cal-hdr">
+      <button class="cal-nav" onclick="chgMo(-1)">&#8249;</button>
+      <div class="cal-month" id="moName"></div>
+      <button class="cal-nav" onclick="chgMo(1)">&#8250;</button>
+    </div>
+    <div class="cal-dn">
+      <div class="cal-d">D</div><div class="cal-d">L</div><div class="cal-d">M</div>
+      <div class="cal-d">X</div><div class="cal-d">J</div><div class="cal-d">V</div><div class="cal-d">S</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-marks">
+      <button class="cal-mark-btn" style="background:rgba(34,197,94,0.15);color:var(--green);border-color:rgba(34,197,94,0.3)" onclick="mark('victory')">&#10003; Victoria hoy</button>
+      <button class="cal-mark-btn" style="background:rgba(239,68,68,0.12);color:var(--red);border-color:rgba(239,68,68,0.2)" onclick="mark('defeat')">&#10007; Caida hoy</button>
+    </div>
+    <div class="cal-stats">
+      <div class="cst"><div class="cst-n" id="csV" style="color:var(--green)">0</div><div class="cst-l">victorias</div></div>
+      <div class="cst"><div class="cst-n" id="csD" style="color:var(--red)">0</div><div class="cst-l">caidas</div></div>
+      <div class="cst"><div class="cst-n" id="csS" style="color:var(--amber)">0</div><div class="cst-l">racha</div></div>
+    </div>
+  </div>
+  <div class="sec-lbl">Patron de disparadores</div>
+  <div class="card" id="trigLog"></div>
+</div>
+
+<div id="sc-act" class="screen">
+  <div style="background:linear-gradient(135deg,#0d1a10,#000);border:1px solid #1a2a1a;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:4px">TRANSFORMACION DE ENERGIA</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;line-height:1.1;margin-bottom:4px">Redirige<br>el impulso</div>
+    <div style="font-size:12px;color:var(--muted2)">Toca cada accion para ver cuando funciona mejor</div>
+  </div>
+  <div id="actList"></div>
+</div>
+
+<div id="sc-focus" class="screen">
+  <div class="card" style="text-align:center;padding:20px;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;margin-bottom:16px">Modo Focus</div>
+    <div class="focus-ring">
+      <svg viewBox="0 0 180 180" width="180" height="180">
+        <circle cx="90" cy="90" r="80" fill="none" stroke="#1a1a1a" stroke-width="7"/>
+        <circle class="ft-arc" id="ftArc" cx="90" cy="90" r="80" fill="none" stroke="var(--blue)" stroke-width="7" stroke-dasharray="503" stroke-dashoffset="0" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="f-time" id="fTime">10:00</div>
+        <div class="f-phase" id="fPhase">Listo para empezar</div>
+      </div>
+    </div>
+    <div class="f-presets">
+      <button class="fpre" onclick="setF(5,this)">5min</button>
+      <button class="fpre fa" id="fpDef" onclick="setF(10,this)">10min</button>
+      <button class="fpre" onclick="setF(25,this)">25min</button>
+      <button class="fpre" onclick="setF(45,this)">45min</button>
+    </div>
+    <div class="f-btns">
+      <button class="fbtn fbtn-p" id="fToggle" onclick="togF()">&#9654; Iniciar</button>
+      <button class="fbtn fbtn-c" onclick="resetF()">&#10005; Reset</button>
+    </div>
+  </div>
+  <div class="sec-lbl">Identidad en este momento</div>
+  <div class="icard">
+    <div class="i-title">Yo soy alguien que...</div>
+    <div id="iList"></div>
+  </div>
+  <div class="sec-lbl">Mantras</div>
+  <div id="mList"></div>
+</div>
+
+</div>
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="goScreen('risk',0)"><span class="nav-icon">&#9888;&#65039;</span>Riesgo</button>
+  <button class="nav-btn" onclick="goScreen('cal',1)"><span class="nav-icon">&#128197;</span>Registro</button>
+  <button class="nav-btn" onclick="goScreen('act',2)"><span class="nav-icon">&#9889;</span>Acciones</button>
+  <button class="nav-btn" onclick="goScreen('focus',3)"><span class="nav-icon">&#127919;</span>Focus</button>
+</nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const FACTORS=[
+  {id:'night',n:'Es de noche',s:'Despues de las 10pm',w:25},
+  {id:'alone',n:'Solo en mi cuarto',s:'Sin nadie cerca',w:20},
+  {id:'phone',n:'Rato en el telefono',s:'Mas de 30 min de scroll',w:20},
+  {id:'bored',n:'Aburrido o sin hacer nada',s:'Sin actividad especifica',w:15},
+  {id:'stress',n:'Estres o ansiedad',s:'Examen, problema, tension',w:15},
+  {id:'sleep',n:'Dormi mal o poco',s:'Menos de 7 horas',w:15},
+  {id:'prev',n:'Ya paso ayer o antes',s:'Patron reciente activo',w:10},
+];
+const ACTIONS=[
+  {icon:'🏋️',n:'Levantar pesas',eff:95,time:'5-10 min',en:'Alta',when:'Funciona mejor cuando el impulso esta en su pico. La energia del impulso y la del gym son literalmente la misma. Haz 3 series al fallo de cualquier ejercicio.',tip:'20 lagartijas ahora mismo si no estas en gym. El efecto es casi inmediato.',best:'Impulso alto · Energia disponible · Cualquier hora'},
+  {icon:'🏃',n:'Salir a caminar rapido',eff:88,time:'10-15 min',en:'Media',when:'Ideal cuando estas solo en tu cuarto. Cambiar el espacio fisico interrumpe el circuito. No paseo — caminata rapida con proposito y musica.',tip:'Musica con ritmo alto obligatorio. Sin audifonos no funciona igual.',best:'Noche · Soledad · Aburrimiento'},
+  {icon:'🚿',n:'Ducha fria 2 minutos',eff:85,time:'2-5 min',en:'Baja',when:'El mas rapido de todos. El agua fria activa el sistema nervioso simpatico y baja la dopamina del impulso casi al instante. Minimo 2 minutos reales.',tip:'No tibia — fria de verdad. El contraste es el mecanismo.',best:'Madrugada · Poco tiempo · Impulso repentino'},
+  {icon:'📖',n:'Estudiar con timer',eff:78,time:'15-25 min',en:'Baja',when:'Efectivo cuando el disparador es aburrimiento. El cerebro necesita un objetivo claro. Abre el libro antes de que el impulso escale.',tip:'Pon 25 minutos en Focus. Solo empieza, no negocies.',best:'Aburrimiento · Tarde o noche · Post-escuela'},
+  {icon:'🎧',n:'Musica intensa + movimiento',eff:80,time:'5-10 min',en:'Media',when:'Redirige el estado emocional. La musica activa dopamina por via diferente. Sube el volumen, muvete aunque sea en tu cuarto.',tip:'Haz una playlist especifica para este momento. Que sea intensa.',best:'Estres · Ansiedad · Energia acumulada'},
+  {icon:'📲',n:'Llamar a alguien',eff:72,time:'5-15 min',en:'Baja',when:'Interrumpe el aislamiento. La conexion social activa oxitocina y baja el cortisol casi de inmediato.',tip:'Audio o llamada, no texto. La voz hace la diferencia real.',best:'Soledad · Noche · Tristeza'},
+  {icon:'✍️',n:'Escribir lo que sientes',eff:70,time:'5-10 min',en:'Baja',when:'Convierte la energia emocional en algo concreto. El acto de escribir activa la corteza prefrontal.',tip:'Papel fisico funciona mejor que el telefono para esto.',best:'Estres intenso · Querer entenderte'},
+];
+const MANTRAS=[
+  {t:'"La disciplina es elegirte a ti mismo sobre el impulso del momento."',s:'Abraham Lincoln'},
+  {t:'"No eres tus pensamientos. Eres quien los observa."',s:'Viktor Frankl'},
+  {t:'"Cada vez que resistes, el circuito se debilita. Cada vez."',s:'Neurociencia'},
+  {t:'"La misma energia que sientes ahora construyo a David Laid."',s:'Sistema Eliow'},
+  {t:'"El caracter es lo que haces cuando nadie te ve."',s:'Proverbio'},
+  {t:'"Soy Elio. Estoy construyendo mi Figura. Esto tambien es parte."',s:'Tu'},
+];
+const IDENTITY=['Controlo mi energia, no al reves','Estoy construyendo mi Figura todos los dias','El impulso de ahora no vale mas que mi objetivo','Cada victoria me hace mas fuerte','Soy el tipo de persona que se elige a si mismo'];
+let fData=JSON.parse(localStorage.getItem('fe_v3')||'null')||{days:{},falls:[]};
+let factors={};let calOff=0;
+let fSecs=600,fMax=600,fRun=false,fInt=null;
+let iChecked=new Set();
+function save(){localStorage.setItem('fe_v3',JSON.stringify(fData));}
+function today(){return new Date().toISOString().split('T')[0];}
+function goScreen(id,i){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sc-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn')[i].classList.add('active');
+  if(id==='cal')renderCal();
+}
+function init(){
+  document.getElementById('topDate').textContent=new Date().toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+  document.getElementById('curTime').value=new Date().toTimeString().slice(0,5);
+  renderFactors();renderActions();renderFocus();renderCal();calcTime();
+  document.getElementById('curTime').addEventListener('change',calcTime);
+}
+function renderFactors(){
+  document.getElementById('factorList').innerHTML=FACTORS.map(f=>`<div class="factor-row"><div><div class="f-name">${f.n}</div><div class="f-sub">${f.s}</div></div><div class="f-tog"><button class="ftbtn" id="fy${f.id}" onclick="setFac('${f.id}',true)">Si</button><button class="ftbtn no" id="fn${f.id}" onclick="setFac('${f.id}',false)">No</button></div></div>`).join('');
+}
+function setFac(id,val){
+  factors[id]=val;
+  document.getElementById('fy'+id).className='ftbtn'+(val?' yes':'');
+  document.getElementById('fn'+id).className='ftbtn'+(val?'':' no');
+  calcRisk();
+}
+function calcRisk(){
+  let s=0;FACTORS.forEach(f=>{if(factors[f.id]===true)s+=f.w;});s=Math.min(s,100);
+  document.getElementById('rNum').textContent=s;
+  document.getElementById('rFill').style.width=s+'%';
+  const hi=s>=75,mi=s>=45;
+  const col=hi?'var(--red)':mi?'var(--amber)':'var(--green)';
+  const bg=hi?'rgba(239,68,68,0.12)':mi?'rgba(240,165,0,0.12)':'rgba(34,197,94,0.1)';
+  const msg=hi?'Riesgo alto — activa el Escudo ahora':mi?'Riesgo moderado — ten un plan listo':'Riesgo bajo — estas bien';
+  document.getElementById('rCircle').style.borderColor=col;
+  document.getElementById('rNum').style.color=col;
+  document.getElementById('rFill').style.background=col;
+  document.getElementById('rVerdict').style.background=bg;
+  document.getElementById('rVerdict').style.color=col;
+  document.getElementById('rVerdict').textContent=msg;
+}
+function calcTime(){
+  const t=document.getElementById('curTime').value;if(!t)return;
+  const h=parseInt(t.split(':')[0]);
+  let m='';
+  if(h>=22||h<2)m='Hora critica — 70% de las caidas ocurren entre 10pm y 2am.';
+  else if(h>=2&&h<6)m='Madrugada — cortisol al minimo. La guardia baja.';
+  else if(h>=6&&h<12)m='Manana — menor riesgo del dia. Cortisol alto, cerebro activo.';
+  else if(h>=12&&h<17)m='Tarde — riesgo bajo si tienes actividad.';
+  else m='Noche temprana — depende de si tienes estructura.';
+  document.getElementById('timeMsg').textContent=m;
+}
+function chgMo(d){calOff+=d;renderCal();}
+function renderCal(){
+  const now=new Date(),y=now.getFullYear(),mo=now.getMonth()+calOff;
+  const date=new Date(y,mo,1);
+  document.getElementById('moName').textContent=date.toLocaleDateString('es-MX',{month:'long',year:'numeric'}).toUpperCase();
+  const first=new Date(date.getFullYear(),date.getMonth(),1).getDay();
+  const dim=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+  const todayStr=today();let html='',vic=0,def=0;
+  for(let i=0;i<first;i++)html+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const st=fData.days[ds];
+    if(st==='victory')vic++;if(st==='defeat')def++;
+    html+=`<div class="cal-cell ${st||''} ${ds===todayStr?'today':''}">${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+  document.getElementById('csV').textContent=vic;
+  document.getElementById('csD').textContent=def;
+  document.getElementById('csS').textContent=getStreak();
+  renderTrig();
+}
+function mark(type){
+  const t=today();fData.days[t]=type;
+  if(type==='defeat'){
+    const h=new Date().getHours();
+    const tr=h>=22||h<6?'Noche/madrugada':h>=6&&h<12?'Manana':'Tarde';
+    fData.falls.push({date:t,time:new Date().toTimeString().slice(0,5),trigger:tr});
+  }
+  save();renderCal();
+  showToast(type==='victory'?'Victoria registrada':'Caida anotada — sigue adelante');
+}
+function getStreak(){
+  let s=0;const d=new Date();
+  while(true){const k=d.toISOString().split('T')[0];if(fData.days[k]==='victory'){s++;d.setDate(d.getDate()-1);}else break;}
+  return s;
+}
+function renderTrig(){
+  const c=document.getElementById('trigLog');
+  if(!fData.falls.length){c.innerHTML='<div style="text-align:center;padding:14px 0;color:var(--muted);font-size:13px">Sin caidas registradas aun.</div>';return;}
+  const tc={};fData.falls.forEach(f=>{tc[f.trigger]=(tc[f.trigger]||0)+1;});
+  const top=Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  c.innerHTML=`<div style="font-size:13px;color:var(--muted2);margin-bottom:10px">Patron principal: <span style="color:var(--coral);font-weight:600">${top[0]}</span> (${top[1]}x)</div>`+
+    fData.falls.slice(-6).reverse().map(f=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${f.date}</span><span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2)">${f.time} · ${f.trigger}</span></div>`).join('');
+}
+function renderActions(){
+  document.getElementById('actList').innerHTML=ACTIONS.map((a,i)=>`<div class="act-card"><div class="act-hdr" onclick="togAct(${i})"><div class="act-icon">${a.icon}</div><div style="flex:1"><div class="act-title">${a.n}</div><div class="act-sub">${a.time} · Energia ${a.en}</div></div><div><div class="act-eff-num" style="color:${a.eff>=85?'var(--green)':a.eff>=75?'var(--amber)':'var(--blue)'}">${a.eff}%</div><div class="act-eff-lbl">efectividad</div></div></div><div class="eff-bar"><div class="eff-fill" style="width:${a.eff}%;background:${a.eff>=85?'var(--green)':a.eff>=75?'var(--amber)':'var(--blue)'}"></div></div><div class="act-expand" id="ax${i}"><div class="aw-lbl">Cuando funciona mejor</div><div class="aw-text">${a.when}</div><div class="aw-tip">💡 ${a.tip}</div><div class="aw-best">Ideal para: ${a.best}</div><button class="do-btn" onclick="doAct(${i})">HACERLO AHORA</button></div></div>`).join('');
+}
+function togAct(i){
+  const el=document.getElementById('ax'+i);
+  const open=el.classList.contains('show');
+  document.querySelectorAll('.act-expand').forEach(e=>e.classList.remove('show'));
+  if(!open)el.classList.add('show');
+}
+function doAct(i){showToast('⚡ '+ACTIONS[i].n+' — hazlo ahora mismo!');}
+function renderFocus(){
+  document.getElementById('iList').innerHTML=IDENTITY.map((t,i)=>`<div class="i-row"><div class="i-chk" id="ic${i}" onclick="togI(${i})"></div><div class="i-text">${t}</div></div>`).join('');
+  document.getElementById('mList').innerHTML=MANTRAS.map(m=>`<div class="mantra"><div class="m-text">${m.t}</div><div class="m-src">— ${m.s}</div></div>`).join('');
+  updateFDisp();
+}
+function togI(i){
+  const el=document.getElementById('ic'+i);
+  if(iChecked.has(i)){iChecked.delete(i);el.classList.remove('on');el.textContent='';}
+  else{iChecked.add(i);el.classList.add('on');el.textContent='✓';}
+}
+function setF(m,btn){
+  fSecs=m*60;fMax=fSecs;fRun=false;clearInterval(fInt);
+  document.querySelectorAll('.fpre').forEach(b=>b.classList.remove('fa'));
+  if(btn)btn.classList.add('fa');
+  document.getElementById('fToggle').textContent='▶ Iniciar';
+  document.getElementById('fPhase').textContent='Listo para empezar';
+  updateFDisp();
+}
+function togF(){
+  if(fSecs<=0){fSecs=fMax;fRun=false;document.getElementById('fToggle').textContent='▶ Iniciar';updateFDisp();return;}
+  fRun=!fRun;
+  document.getElementById('fToggle').textContent=fRun?'⏸ Pausar':'▶ Reanudar';
+  document.getElementById('fPhase').textContent=fRun?'En focus — no cedas':'Pausado';
+  if(fRun){
+    fInt=setInterval(()=>{
+      if(!fRun)return;fSecs--;updateFDisp();
+      if(fSecs<=0){clearInterval(fInt);fRun=false;document.getElementById('fToggle').textContent='✓ Listo';document.getElementById('fPhase').textContent='Lo lograste!';showToast('Focus completado — eres mas fuerte');}
+    },1000);
+  }else clearInterval(fInt);
+}
+function resetF(){clearInterval(fInt);fRun=false;fSecs=fMax;document.getElementById('fToggle').textContent='▶ Iniciar';document.getElementById('fPhase').textContent='Listo para empezar';updateFDisp();}
+function updateFDisp(){
+  const m=Math.floor(fSecs/60),s=fSecs%60;
+  document.getElementById('fTime').textContent=`${m}:${String(s).padStart(2,'0')}`;
+  const pct=fSecs/fMax;
+  document.getElementById('ftArc').style.strokeDashoffset=503*(1-pct);
+  const col=pct>0.5?'var(--blue)':pct>0.25?'var(--amber)':'var(--coral)';
+  document.getElementById('ftArc').style.stroke=col;
+  document.getElementById('fTime').style.color=col;
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+init();
+</script>
+</body>
+</html>
