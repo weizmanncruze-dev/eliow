@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Negocio — EloicoW</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --s1: #111;
+  --s2: #181818;
+  --s3: #202020;
+  --border: #282828;
+  --border2: #333;
+  --gold: #c8a84b;
+  --gold2: #8a6e2a;
+  --teal: #2bada0;
+  --purple: #7c6fcd;
+  --rose: #c05c6e;
+  --blue: #4a8fd4;
+  --green: #5aab6e;
+  --text: #ede9e1;
+  --dim: #888;
+  --muted: #444;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;}
+
+/* HEADER */
+.hdr{padding:32px 36px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;}
+.hdr-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--gold);letter-spacing:-0.5px;line-height:1;}
+.hdr-sub{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:6px;}
+.hdr-right{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);text-align:right;letter-spacing:0.08em;}
+
+/* ESTADO GLOBAL */
+.estado-bar{display:flex;gap:0;padding:0 36px;border-bottom:1px solid var(--border);overflow-x:auto;}
+.estado-item{padding:12px 20px;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;color:var(--muted);transition:all 0.2s;}
+.estado-item:hover{color:var(--dim);}
+.estado-item.act{color:var(--gold);border-bottom-color:var(--gold);}
+.estado-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;background:var(--muted);}
+.estado-dot.ok{background:var(--teal);}
+.estado-dot.wip{background:var(--gold);}
+.estado-dot.todo{background:var(--muted);}
+
+/* LAYOUT */
+.main{padding:36px;}
+.tab{display:none;animation:fi 0.3s ease;}
+.tab.act{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ÁREA HEADER */
+.area-hdr{display:flex;align-items:flex-start;gap:20px;margin-bottom:32px;}
+.area-num{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:700;line-height:1;color:var(--border2);}
+.area-info{}
+.area-name{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--text);line-height:1;}
+.area-aka{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);margin-top:4px;}
+.area-q{font-size:0.85rem;color:var(--dim);margin-top:6px;font-style:italic;}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;margin-top:8px;}
+.badge-ok{background:#0d2420;color:var(--teal);border:1px solid #1a3d38;}
+.badge-wip{background:#1a1408;color:var(--gold);border:1px solid #3a2a0a;}
+.badge-todo{background:#181818;color:var(--muted);border:1px solid var(--border);}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.full{grid-column:1/-1;}
+
+/* CARDS */
+.card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:22px;}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.card-accent{border-left:2px solid var(--gold);}
+.card-teal{border-left:2px solid var(--teal);}
+.card-purple{border-left:2px solid var(--purple);}
+.card-rose{border-left:2px solid var(--rose);}
+.card-blue{border-left:2px solid var(--blue);}
+.card-green{border-left:2px solid var(--green);}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.field label{font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.field input,.field textarea,.field select{background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:0.85rem;padding:9px 13px;outline:none;transition:border 0.2s;resize:vertical;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold2);}
+.field select option{background:var(--s2);}
+
+/* SEPARADOR */
+.sep{height:1px;background:var(--border);margin:28px 0;}
+
+/* BOTONES */
+.btn{background:var(--gold);color:#080808;border:none;border-radius:6px;padding:9px 22px;font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;font-weight:500;}
+.btn:hover{background:#deba5f;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--gold2);color:var(--gold);background:transparent;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+
+/* TABLA */
+.tbl-wrap{overflow-x:auto;margin-top:8px;}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+thead th{font-family:'IBM Plex Mono',monospace;font-size:0.58rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);padding:9px 13px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #161616;transition:background 0.15s;}
+tbody tr:hover{background:var(--s2);}
+tbody td{padding:9px 13px;color:var(--dim);}
+.empty-r td{text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:0.68rem;padding:36px;}
+
+/* STAT CARDS */
+.stat{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.stat-lbl{font-family:'IBM Plex Mono',monospace;font-size:0.58rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--gold);line-height:1;}
+.stat-val.teal{color:var(--teal);}
+.stat-val.purple{color:var(--purple);}
+.stat-val.rose{color:var(--rose);}
+
+/* CHECKLIST */
+.checklist{list-style:none;}
+.checklist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #161616;font-size:0.85rem;color:var(--dim);cursor:pointer;}
+.checklist li:last-child{border-bottom:none;}
+.check-box{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s;}
+.check-box.done{background:var(--teal);border-color:var(--teal);color:#080808;}
+.checklist li.done-item{color:var(--muted);text-decoration:line-through;}
+
+/* PILARES */
+.pilar{background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;}
+.pilar-icon{font-size:1.4rem;margin-bottom:8px;}
+.pilar-name{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px;}
+.pilar-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--text);}
+
+/* PROGRESS */
+.prog-bar{height:6px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
+
+/* NOTA INFO */
+.nota{background:#12100a;border:1px solid var(--gold2);border-radius:8px;padding:14px 18px;display:flex;gap:12px;margin-bottom:20px;}
+.nota-icon{font-size:1rem;margin-top:1px;flex-shrink:0;}
+.nota-text{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--gold2);letter-spacing:0.03em;line-height:1.6;}
+.nota-text strong{color:var(--gold);}
+
+/* COMPETIDORES */
+.comp-card{background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+.comp-name{font-weight:500;margin-bottom:6px;}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.8rem;color:var(--dim);}
+
+/* SEMANA BITA */
+.bita-entry{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px;animation:fi 0.3s ease;}
+.bita-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.bita-week{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold);}
+.bita-date{font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--muted);}
+.bita-q{font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.bita-a{font-size:0.85rem;color:var(--dim);line-height:1.5;font-style:italic;margin-bottom:12px;}
+
+@media(max-width:600px){
+  .hdr{padding:20px 16px 14px;flex-direction:column;gap:8px;align-items:flex-start;}
+  .estado-bar{padding:0 10px;}
+  .main{padding:20px 16px;}
+  .grid2,.grid3{grid-template-columns:1fr;}
+  .area-num{font-size:2.4rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">Sistema Negocio</div>
+    <div class="hdr-sub">EloicoW · Las 6 áreas · Anatomía completa</div>
+  </div>
+  <div class="hdr-right">
+    <div id="fecha-hdr"></div>
+    <div style="margin-top:3px;">Independencia Económica · Nivel Aprendizaje</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="estado-bar">
+  <div class="estado-item act" onclick="tab('producto',this)"><span class="estado-dot todo"></span>01 · Producto</div>
+  <div class="estado-item" onclick="tab('cliente',this)"><span class="estado-dot todo"></span>02 · Cliente</div>
+  <div class="estado-item" onclick="tab('ventas',this)"><span class="estado-dot wip"></span>03 · Ventas</div>
+  <div class="estado-item" onclick="tab('finanzas',this)"><span class="estado-dot ok"></span>04 · Finanzas</div>
+  <div class="estado-item" onclick="tab('operaciones',this)"><span class="estado-dot ok"></span>05 · Operaciones</div>
+  <div class="estado-item" onclick="tab('marca',this)"><span class="estado-dot wip"></span>06 · Marca</div>
+</div>
+
+<div class="main">
+
+<!-- ══════ 01 PRODUCTO ══════ -->
+<div id="tab-producto" class="tab act">
+  <div class="area-hdr">
+    <div class="area-num">01</div>
+    <div class="area-info">
+      <div class="area-name">Producto</div>
+      <div class="area-aka">= Propuesta de valor · Oferta</div>
+      <div class="area-q">"¿Qué vendes exactamente y por qué vale la pena comprártelo a ti?"</div>
+      <span class="status-badge badge-todo">Por definir</span>
+    </div>
+  </div>
+
+  <div class="nota"><span class="nota-icon">💡</span><div class="nota-text">Define tu producto <strong>antes</strong> de pensar en clientes o ventas. Sin claridad en lo que ofreces, todo lo demás es ruido.</div></div>
+
+  <div class="grid2">
+    <div class="card card-accent">
+      <div class="card-title">Definición del producto</div>
+      <div class="field"><label>Nombre del producto / servicio</label><input type="text" id="p-nombre" placeholder="Ej. Brownies artesanales por pedido"></div>
+      <div class="field"><label>¿Qué problema resuelve o qué deseo satisface?</label><textarea id="p-problema" rows="2" placeholder="Ej. Antojo de repostería de calidad sin ir a una tienda cara"></textarea></div>
+      <div class="field"><label>¿Qué lo hace diferente? (diferenciador)</label><textarea id="p-diferenciador" rows="2" placeholder="Ej. Receta casera, presentación cuidada, pedido flexible"></textarea></div>
+      <div class="field"><label>¿En qué categoría entra?</label>
+        <select id="p-categoria">
+          <option value="">Seleccionar...</option>
+          <option>Producto físico</option>
+          <option>Servicio</option>
+          <option>Producto digital</option>
+          <option>Combinación</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <div class="card card-accent" style="margin-bottom:16px;">
+        <div class="card-title">Versiones del producto</div>
+        <div class="field"><label>Versión básica (mínimo viable)</label><input type="text" id="p-v1" placeholder="Ej. 6 brownies en caja simple"></div>
+        <div class="field"><label>Versión estándar</label><input type="text" id="p-v2" placeholder="Ej. 12 brownies con presentación"></div>
+        <div class="field"><label>Versión premium</label><input type="text" id="p-v3" placeholder="Ej. Caja regalo personalizada"></div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Checklist de producto</div>
+        <ul class="checklist" id="check-producto">
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Definí exactamente qué vendo</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Sé qué problema resuelve</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Tengo un diferenciador claro</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Hice una prueba del producto</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Alguien lo probó y dio feedback</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn" onclick="guardar('producto')">Guardar área</button></div>
+</div>
+
+<!-- ══════ 02 CLIENTE ══════ -->
+<div id="tab-cliente" class="tab">
+  <div class="area-hdr">
+    <div class="area-num">02</div>
+    <div class="area-info">
+      <div class="area-name">Cliente</div>
+      <div class="area-aka">= Mercado objetivo · Buyer persona</div>
+      <div class="area-q">"¿A quién exactamente le estás vendiendo y qué lo mueve a comprar?"</div>
+      <span class="status-badge badge-todo">Por definir</span>
+    </div>
+  </div>
+
+  <div class="nota"><span class="nota-icon">🎯</span><div class="nota-text">El error más común: querer venderle a <strong>todo el mundo</strong>. Mientras más específico sea tu cliente, más fácil es vender.</div></div>
+
+  <div class="grid2">
+    <div class="card card-teal">
+      <div class="card-title">Perfil del cliente ideal</div>
+      <div class="field"><label>¿Quién es? (descripción)</label><textarea id="c-quien" rows="2" placeholder="Ej. Compañeros de la ENP, 15-20 años, con ganas de algo rico y accesible"></textarea></div>
+      <div class="field"><label>¿Qué necesita o desea?</label><textarea id="c-necesita" rows="2" placeholder="Ej. Repostería de calidad sin pagar precios de cafetería cara"></textarea></div>
+      <div class="field"><label>¿Dónde lo encuentro?</label><input type="text" id="c-donde" placeholder="Ej. WhatsApp, Instagram, escuela, vecinos"></div>
+      <div class="field"><label>¿Cuánto está dispuesto a pagar?</label><input type="text" id="c-pagar" placeholder="Ej. Entre $100 y $300 por pedido"></div>
+      <div class="field"><label>¿Qué lo frenaría a comprar?</label><textarea id="c-freno" rows="2" placeholder="Ej. No conocer el producto, desconfianza, precio alto"></textarea></div>
+    </div>
+    <div>
+      <div class="card card-teal" style="margin-bottom:16px;">
+        <div class="card-title">Tamaño estimado del mercado</div>
+        <div class="field"><label>¿Cuántos clientes potenciales tienes cerca?</label><input type="number" id="c-tamano" placeholder="Ej. 200 contactos de WhatsApp"></div>
+        <div class="field"><label>¿Cuántos podrían comprar al mes?</label><input type="number" id="c-activos" placeholder="Ej. 20 clientes por mes"></div>
+        <div style="margin-top:10px;">
+          <div class="stat-lbl">Potencial mensual estimado</div>
+          <div id="c-potencial" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--teal);">$—</div>
+        </div>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">Checklist de cliente</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Describí a mi cliente ideal</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Sé dónde encontrarlo</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Sé cuánto está dispuesto a pagar</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Hablé con al menos 3 clientes potenciales</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn" onclick="calcPotencial()">Calcular potencial</button><button class="btn" onclick="guardar('cliente')">Guardar área</button></div>
+</div>
+
+<!-- ══════ 03 VENTAS ══════ -->
+<div id="tab-ventas" class="tab">
+  <div class="area-hdr">
+    <div class="area-num">03</div>
+    <div class="area-info">
+      <div class="area-name">Ventas</div>
+      <div class="area-aka">= Comercialización · Canales</div>
+      <div class="area-q">"¿Cómo conviertes a un desconocido en un cliente que paga?"</div>
+      <span class="status-badge badge-wip">En progreso</span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card card-purple">
+      <div class="card-title">Estrategia de precio</div>
+      <div class="field"><label>Costo de producción ($)</label><input type="number" id="v-costo" placeholder="0.00" oninput="calcPrecio()"></div>
+      <div class="field"><label>Margen deseado (%)</label><input type="number" id="v-margen" placeholder="Ej. 60" oninput="calcPrecio()"></div>
+      <div style="margin-top:10px;">
+        <div class="stat-lbl">Precio sugerido</div>
+        <div id="v-precio-sug" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--purple);">$—</div>
+      </div>
+      <div class="sep" style="margin:16px 0;"></div>
+      <div class="field"><label>Precio final definido ($)</label><input type="number" id="v-precio-final" placeholder="0.00"></div>
+    </div>
+    <div class="card card-purple">
+      <div class="card-title">Canales de venta</div>
+      <ul class="checklist">
+        <li onclick="toggleCheck(this)"><div class="check-box"></div>WhatsApp (pedidos directos)</li>
+        <li onclick="toggleCheck(this)"><div class="check-box"></div>Instagram (contenido + pedidos)</li>
+        <li onclick="toggleCheck(this)"><div class="check-box"></div>Boca a boca (referidos)</li>
+        <li onclick="toggleCheck(this)"><div class="check-box"></div>Escuela / comunidad cercana</li>
+        <li onclick="toggleCheck(this)"><div class="check-box"></div>Familia y conocidos</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card card-purple" style="margin-top:16px;">
+    <div class="card-title">Registro de ventas</div>
+    <div class="grid2" style="margin-bottom:14px;">
+      <div class="field"><label>Fecha</label><input type="date" id="vr-fecha"></div>
+      <div class="field"><label>Cliente</label><input type="text" id="vr-cliente" placeholder="Nombre"></div>
+      <div class="field"><label>Producto</label><input type="text" id="vr-producto" placeholder="Qué vendiste"></div>
+      <div class="field"><label>Monto ($)</label><input type="number" id="vr-monto" placeholder="0.00"></div>
+    </div>
+    <button class="btn" onclick="agregarVenta()">+ Registrar venta</button>
+    <div class="sep" style="margin:16px 0;"></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Monto</th><th></th></tr></thead>
+        <tbody id="tabla-ventas"><tr class="empty-r"><td colspan="5">— Sin ventas registradas —</td></tr></tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:20px;">
+      <div><div class="stat-lbl">Total ventas</div><div id="v-total" style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--purple);">$0.00</div></div>
+      <div><div class="stat-lbl">Núm. de ventas</div><div id="v-num" style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--dim);">0</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 04 FINANZAS ══════ -->
+<div id="tab-finanzas" class="tab">
+  <div class="area-hdr">
+    <div class="area-num">04</div>
+    <div class="area-info">
+      <div class="area-name">Finanzas</div>
+      <div class="area-aka">= Flujo de caja · Contabilidad · Margen</div>
+      <div class="area-q">"¿Tu negocio realmente gana dinero o solo mueve dinero?"</div>
+      <span class="status-badge badge-ok">Cubierto — Sistema Z</span>
+    </div>
+  </div>
+
+  <div class="nota"><span class="nota-icon">✓</span><div class="nota-text">Esta área ya está cubierta por tu <strong>Sistema Z</strong>. Aquí tienes un resumen ejecutivo y la distribución de caja.</div></div>
+
+  <div class="grid3">
+    <div class="stat"><div class="stat-lbl">Ingresos totales</div><div class="stat-val teal" id="fin-ingresos">$0</div></div>
+    <div class="stat"><div class="stat-lbl">Gastos totales</div><div class="stat-val rose" id="fin-gastos">$0</div></div>
+    <div class="stat"><div class="stat-lbl">Ganancia neta</div><div class="stat-val" id="fin-neta">$0</div></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="grid2">
+    <div class="card card-accent">
+      <div class="card-title">Distribución de caja — 50·40·10</div>
+      <div class="field"><label>Ingreso a distribuir ($)</label><input type="number" id="fin-dist" placeholder="0.00" oninput="calcDist()"></div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+        <div class="pilar"><div class="pilar-icon">🔄</div><div class="pilar-name">Reinversión</div><div class="pilar-val" id="fin-r">$0</div><div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--teal);"></div></div></div>
+        <div class="pilar"><div class="pilar-icon">💰</div><div class="pilar-name">Tu pago</div><div class="pilar-val" id="fin-p">$0</div><div class="prog-bar"><div class="prog-fill" style="width:40%;background:var(--gold);"></div></div></div>
+        <div class="pilar"><div class="pilar-icon">📈</div><div class="pilar-name">Crecimiento</div><div class="pilar-val" id="fin-c">$0</div><div class="prog-bar"><div class="prog-fill" style="width:10%;background:var(--purple);"></div></div></div>
+      </div>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Registro rápido de movimiento</div>
+      <div class="field"><label>Tipo</label><select id="fin-tipo"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select></div>
+      <div class="field"><label>Concepto</label><input type="text" id="fin-concepto" placeholder="Ej. Venta brownies"></div>
+      <div class="field"><label>Monto ($)</label><input type="number" id="fin-monto" placeholder="0.00"></div>
+      <button class="btn" onclick="agregarMovimiento()">+ Registrar</button>
+      <div class="sep" style="margin:14px 0;"></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tipo</th><th>Concepto</th><th>Monto</th><th></th></tr></thead>
+          <tbody id="tabla-movs"><tr class="empty-r"><td colspan="4">— Sin movimientos —</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 05 OPERACIONES ══════ -->
+<div id="tab-operaciones" class="tab">
+  <div class="area-hdr">
+    <div class="area-num">05</div>
+    <div class="area-info">
+      <div class="area-name">Operaciones</div>
+      <div class="area-aka">= Procesos · Producción · Entrega</div>
+      <div class="area-q">"¿Cómo produces, entregas y repites sin morir en el proceso?"</div>
+      <span class="status-badge badge-ok">Cubierto — Sistema Z</span>
+    </div>
+  </div>
+
+  <div class="nota"><span class="nota-icon">⚙️</span><div class="nota-text">Las operaciones son el <strong>ritmo</strong> del negocio. Documenta tu proceso una vez y ejecútalo siempre igual — así escala sin caos.</div></div>
+
+  <div class="grid2">
+    <div class="card card-teal">
+      <div class="card-title">Proceso de producción</div>
+      <div id="pasos-lista"></div>
+      <div class="field" style="margin-top:12px;"><label>Agregar paso</label><input type="text" id="op-paso" placeholder="Ej. Preparar ingredientes — 20 min"></div>
+      <button class="btn btn-ghost" onclick="agregarPaso()" style="margin-top:8px;">+ Agregar paso</button>
+    </div>
+    <div>
+      <div class="card card-teal" style="margin-bottom:16px;">
+        <div class="card-title">Tiempos y capacidad</div>
+        <div class="field"><label>Tiempo de producción por unidad (min)</label><input type="number" id="op-tprod" placeholder="Ej. 45"></div>
+        <div class="field"><label>Tiempo de entrega (horas)</label><input type="number" id="op-tentrega" placeholder="Ej. 24"></div>
+        <div class="field"><label>Capacidad máxima semanal (unidades)</label><input type="number" id="op-capacidad" placeholder="Ej. 30" oninput="calcCapacidad()"></div>
+        <div style="margin-top:10px;">
+          <div class="stat-lbl">Ingreso máximo semanal potencial</div>
+          <div id="op-max" style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--teal);">$—</div>
+        </div>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">Checklist operativo</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Proceso documentado paso a paso</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Sé cuánto tiempo tarda cada lote</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Tengo los materiales e insumos</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Sistema de pedidos claro</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Método de entrega definido</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 06 MARCA ══════ -->
+<div id="tab-marca" class="tab">
+  <div class="area-hdr">
+    <div class="area-num">06</div>
+    <div class="area-info">
+      <div class="area-name">Marca</div>
+      <div class="area-aka">= Identidad · Posicionamiento · Presencia</div>
+      <div class="area-q">"¿Por qué te eligen a ti y no a cualquier otro?"</div>
+      <span class="status-badge badge-wip">En progreso — ELIOW</span>
+    </div>
+  </div>
+
+  <div class="nota"><span class="nota-icon">🌊</span><div class="nota-text">Tu marca no es un logo — es la <strong>razón emocional</strong> por la que alguien te elige. A tu edad, tu historia y autenticidad son tu mayor ventaja.</div></div>
+
+  <div class="grid2">
+    <div class="card card-blue">
+      <div class="card-title">Identidad de marca</div>
+      <div class="field"><label>Nombre del negocio / marca</label><input type="text" id="m-nombre" placeholder="Ej. Elio's · BakeW · Tu nombre"></div>
+      <div class="field"><label>¿Qué valores representa tu marca?</label><textarea id="m-valores" rows="2" placeholder="Ej. Calidad casera, honestidad, atención personal"></textarea></div>
+      <div class="field"><label>Tono de comunicación</label>
+        <select id="m-tono">
+          <option value="">Seleccionar...</option>
+          <option>Cercano y casual</option>
+          <option>Profesional y serio</option>
+          <option>Divertido y juvenil</option>
+          <option>Sofisticado y premium</option>
+        </select>
+      </div>
+      <div class="field"><label>¿Qué hace memorable a tu marca?</label><textarea id="m-memorable" rows="2" placeholder="Ej. Mi historia judía, mi estética cuidada, la personalización"></textarea></div>
+    </div>
+    <div>
+      <div class="card card-blue" style="margin-bottom:16px;">
+        <div class="card-title">Presencia digital</div>
+        <ul class="checklist">
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Cuenta de Instagram del negocio</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>WhatsApp Business configurado</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Foto de perfil profesional</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Bio que explica qué vendes</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Primeras 3 fotos del producto</li>
+          <li onclick="toggleCheck(this)"><div class="check-box"></div>Historia destacada con precios</li>
+        </ul>
+      </div>
+      <div class="card card-blue">
+        <div class="card-title">Tu ventaja competitiva</div>
+        <div class="field"><label>¿Qué tienes tú que otros no tienen?</label><textarea id="m-ventaja" rows="3" placeholder="Ej. Soy estudiante de la ENP con red de contactos, soy judío con recetas únicas, tengo la estética EloicoW..."></textarea></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn" onclick="guardar('marca')">Guardar área</button></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// Fecha
+const h = new Date();
+document.getElementById('fecha-hdr').textContent = h.toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// TABS
+function tab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('act'));
+  document.querySelectorAll('.estado-item').forEach(b => b.classList.remove('act'));
+  document.getElementById('tab-'+id).classList.add('act');
+  el.classList.add('act');
+}
+
+// CHECKLIST
+function toggleCheck(li) {
+  li.classList.toggle('done-item');
+  const box = li.querySelector('.check-box');
+  box.classList.toggle('done');
+  box.textContent = box.classList.contains('done') ? '✓' : '';
+}
+
+// GUARDAR (feedback visual)
+function guardar(area) {
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓ Guardado';
+  btn.style.background = 'var(--teal)';
+  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+}
+
+// PRODUCTO — nada dinámico extra
+
+// CLIENTE — potencial
+function calcPotencial() {
+  const activos = parseInt(document.getElementById('c-activos').value) || 0;
+  const pFinal = parseFloat(document.getElementById('v-precio-final')?.value) || 200;
+  document.getElementById('c-potencial').textContent = activos > 0 ? '$' + (activos * pFinal).toLocaleString('es-MX') : '$—';
+}
+
+// VENTAS — precio sugerido
+function calcPrecio() {
+  const costo = parseFloat(document.getElementById('v-costo').value) || 0;
+  const margen = parseFloat(document.getElementById('v-margen').value) || 0;
+  if (costo > 0 && margen > 0 && margen < 100) {
+    const precio = costo / (1 - margen/100);
+    document.getElementById('v-precio-sug').textContent = '$' + precio.toFixed(2);
+  } else {
+    document.getElementById('v-precio-sug').textContent = '$—';
+  }
+}
+
+// VENTAS — registro
+let ventas = [];
+function agregarVenta() {
+  const fecha = document.getElementById('vr-fecha').value;
+  const cliente = document.getElementById('vr-cliente').value;
+  const producto = document.getElementById('vr-producto').value;
+  const monto = parseFloat(document.getElementById('vr-monto').value) || 0;
+  if (!producto || monto <= 0) return;
+  ventas.push({fecha, cliente, producto, monto});
+  renderVentas();
+  ['vr-fecha','vr-cliente','vr-producto','vr-monto'].forEach(id => document.getElementById(id).value='');
+}
+function renderVentas() {
+  const tb = document.getElementById('tabla-ventas');
+  if (!ventas.length) { tb.innerHTML='<tr class="empty-r"><td colspan="5">— Sin ventas registradas —</td></tr>'; }
+  else tb.innerHTML = ventas.map((v,i) => `<tr><td>${v.fecha||'—'}</td><td>${v.cliente||'—'}</td><td>${v.producto}</td><td style="color:var(--purple);font-family:'IBM Plex Mono',monospace;">$${v.monto.toFixed(2)}</td><td><button class="btn btn-ghost" style="padding:3px 8px;font-size:0.58rem;" onclick="ventas.splice(${i},1);renderVentas()">✕</button></td></tr>`).join('');
+  const total = ventas.reduce((s,v) => s+v.monto, 0);
+  document.getElementById('v-total').textContent = '$' + total.toFixed(2);
+  document.getElementById('v-num').textContent = ventas.length;
+}
+
+// FINANZAS
+function calcDist() {
+  const val = parseFloat(document.getElementById('fin-dist').value) || 0;
+  document.getElementById('fin-r').textContent = '$' + (val*.5).toFixed(2);
+  document.getElementById('fin-p').textContent = '$' + (val*.4).toFixed(2);
+  document.getElementById('fin-c').textContent = '$' + (val*.1).toFixed(2);
+}
+let movimientos = [];
+function agregarMovimiento() {
+  const tipo = document.getElementById('fin-tipo').value;
+  const concepto = document.getElementById('fin-concepto').value;
+  const monto = parseFloat(document.getElementById('fin-monto').value) || 0;
+  if (!concepto || monto <= 0) return;
+  movimientos.push({tipo, concepto, monto});
+  renderMovs();
+  ['fin-concepto','fin-monto'].forEach(id => document.getElementById(id).value='');
+}
+function renderMovs() {
+  const tb = document.getElementById('tabla-movs');
+  if (!movimientos.length) { tb.innerHTML='<tr class="empty-r"><td colspan="4">— Sin movimientos —</td></tr>'; return; }
+  tb.innerHTML = movimientos.map((m,i) => `<tr><td style="color:${m.tipo==='ingreso'?'var(--teal)':'var(--rose)'};">${m.tipo==='ingreso'?'↑':'↓'} ${m.tipo}</td><td>${m.concepto}</td><td style="font-family:'IBM Plex Mono',monospace;color:${m.tipo==='ingreso'?'var(--teal)':'var(--rose)'};">${m.tipo==='ingreso'?'+':'-'}$${m.monto.toFixed(2)}</td><td><button class="btn btn-ghost" style="padding:3px 8px;font-size:0.58rem;" onclick="movimientos.splice(${i},1);renderMovs()">✕</button></td></tr>`).join('');
+  const ing = movimientos.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0);
+  const gas = movimientos.filter(m=>m.tipo==='gasto').reduce((s,m)=>s+m.monto,0);
+  document.getElementById('fin-ingresos').textContent = '$'+ing.toFixed(2);
+  document.getElementById('fin-gastos').textContent = '$'+gas.toFixed(2);
+  const neta = ing-gas;
+  const el = document.getElementById('fin-neta');
+  el.textContent = '$'+neta.toFixed(2);
+  el.style.color = neta >= 0 ? 'var(--gold)' : 'var(--rose)';
+}
+
+// OPERACIONES — pasos
+let pasos = [];
+function agregarPaso() {
+  const val = document.getElementById('op-paso').value.trim();
+  if (!val) return;
+  pasos.push(val);
+  renderPasos();
+  document.getElementById('op-paso').value = '';
+}
+function renderPasos() {
+  const cont = document.getElementById('pasos-lista');
+  if (!pasos.length) { cont.innerHTML=''; return; }
+  cont.innerHTML = pasos.map((p,i) => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #161616;"><span style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--teal);min-width:20px;">${i+1}.</span><span style="font-size:0.84rem;color:var(--dim);flex:1;">${p}</span><button onclick="pasos.splice(${i},1);renderPasos()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;">✕</button></div>`).join('');
+}
+function calcCapacidad() {
+  const cap = parseInt(document.getElementById('op-capacidad').value) || 0;
+  const precio = parseFloat(document.getElementById('v-precio-final')?.value) || 200;
+  document.getElementById('op-max').textContent = cap > 0 ? '$' + (cap * precio).toLocaleString('es-MX') : '$—';
+}
+</script>
+</body>
+</html>
