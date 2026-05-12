@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sistema EloicoW — App Completa</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#080807;--bg2:#0f0f0d;--bg3:#161614;--bg4:#1e1e1b;
+  --border:#1f1f1d;--bord2:#2a2a27;--bord3:#383835;
+  --text:#f0ece0;--muted:#7a7870;--dim:#3a3a36;--faint:#252522;
+  --gold:#c9a84c;--gold2:#e8c878;--gold3:#f5e4a8;
+  --c1:#6B63CC;--c2:#C84B28;--c3:#1A8C68;--c4:#A06510;
+  --c5:#4A42A8;--c6:#567A14;--c7:#1855A0;--c8:#8B3388;--c9:#A85018;
+  --radius:14px;
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow-x:hidden}
+
+/* ── NOISE TEXTURE ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* ── SIDE NAV ── */
+.sidenav{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:0.5px solid var(--border);padding:28px 0;z-index:100;overflow-y:auto;display:flex;flex-direction:column}
+.nav-logo{padding:0 22px 24px;border-bottom:0.5px solid var(--border);margin-bottom:16px}
+.nav-logo-main{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold2);letter-spacing:-.01em;margin-bottom:2px}
+.nav-logo-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 22px;cursor:pointer;transition:background .15s;font-size:13px;color:var(--muted);border-left:2px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--text);border-left-color:var(--gold)}
+.nav-item-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.nav-phase{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:12px 22px 4px}
+
+/* ── MAIN ── */
+.main{margin-left:220px;min-height:100vh;position:relative;z-index:1}
+
+/* ── HERO ── */
+.hero{padding:72px 56px 56px;border-bottom:0.5px solid var(--border);background:linear-gradient(135deg,var(--bg) 0%,var(--bg2) 100%);position:relative;overflow:hidden}
+.hero::after{content:'ELIOW';position:absolute;right:-20px;top:-20px;font-family:'Playfair Display',serif;font-size:200px;font-weight:900;color:var(--gold);opacity:.03;line-height:1;pointer-events:none;user-select:none}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:var(--text);line-height:1.05;margin-bottom:8px;letter-spacing:-.02em}
+.hero-sub{font-size:18px;color:var(--muted);font-style:italic;margin-bottom:28px}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap}
+.hero-chip{background:var(--bg3);border:0.5px solid var(--border);border-radius:30px;padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.05em}
+.hero-chip span{color:var(--gold2)}
+
+/* ── SECTION ── */
+.section{padding:52px 56px;border-bottom:0.5px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section-header{margin-bottom:32px}
+.section-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+.section-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-.01em}
+.section-desc{font-size:15px;color:var(--muted);font-style:italic;line-height:1.65}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:22px 20px}
+.card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+.card-sub{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;margin-bottom:14px}
+
+/* ── GRID UTILITIES ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+.gap-col{display:flex;flex-direction:column;gap:3px}
+
+/* ── PROGRESS BAR ── */
+.pbar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:6px 0}
+.pbar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* ── BUTTONS ── */
+.btn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;border:0.5px solid var(--bord2);border-radius:8px;padding:8px 16px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--bg3);color:var(--text);border-color:var(--bord3)}
+.btn-gold{border-color:var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,transparent)}
+.btn-gold:hover{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold2)}
+
+/* ── TAG ── */
+.tag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:20px;border:0.5px solid;display:inline-block;margin:2px}
+
+/* ── INPUT ── */
+input,textarea,select{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;width:100%;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:5px}
+
+/* ════════════════════════════════════════
+   MÓDULO 1: MENTE ACADÉMICA
+   ════════════════════════════════════════ */
+.check-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.day-check{aspect-ratio:1;background:var(--bg3);border:0.5px solid var(--bord2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;transition:all .15s;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.day-check.done{background:color-mix(in srgb,var(--c3) 20%,var(--bg3));border-color:var(--c3);color:var(--c3)}
+.day-check .ck-day{font-size:8px;opacity:.6}
+.day-check .ck-mark{font-size:16px;line-height:1}
+
+.exercise-card{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:10px;padding:16px 18px;margin-bottom:3px;cursor:pointer;transition:background .15s}
+.exercise-card:hover{background:var(--bg4)}
+.ex-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ex-title{font-size:14px;font-weight:600;color:var(--text)}
+.ex-pct{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+.ex-desc{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5}
+.ex-timer{display:none;margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border)}
+.exercise-card.open .ex-timer{display:block}
+.timer-display{font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:700;color:var(--gold2);text-align:center;margin-bottom:12px;letter-spacing:.05em}
+.timer-btns{display:flex;gap:8px;justify-content:center}
+
+/* ════════════════════════════════════════
+   MÓDULO 2: HÁBITOS
+   ════════════════════════════════════════ */
+.routine-builder{display:flex;flex-direction:column;gap:4px}
+.routine-block{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:grab}
+.rb-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);min-width:52px}
+.rb-activity{flex:1;font-size:14px;color:var(--text)}
+.rb-dur{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.rb-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:0 4px}
+.rb-del:hover{color:var(--c2)}
+
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:16px}
+.tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--gold);border:2px solid var(--bg)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-bottom:2px}
+.tl-label{font-size:14px;color:var(--text)}
+.tl-note{font-size:12px;color:var(--muted);font-style:italic}
+
+/* ════════════════════════════════════════
+   MÓDULO 3: TÉCNICAS
+   ════════════════════════════════════════ */
+.technique-card{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:18px 18px;cursor:pointer;transition:background .15s;border-left:3px solid var(--tc,var(--border))}
+.technique-card:hover{background:var(--bg4)}
+.tc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.tc-name{font-size:15px;font-weight:600;color:var(--text)}
+.tc-pct{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700}
+.tc-desc{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;margin-bottom:10px}
+.tc-materias{display:flex;flex-wrap:wrap;gap:4px}
+.tc-detail{display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border)}
+.technique-card.open .tc-detail{display:block}
+.tc-steps{list-style:none;counter-reset:steps}
+.tc-steps li{counter-increment:steps;display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:var(--muted);line-height:1.5}
+.tc-steps li::before{content:counter(steps);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tc);min-width:18px;height:18px;border-radius:50%;border:0.5px solid var(--tc);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* ════════════════════════════════════════
+   MÓDULO 4: GESTIÓN DE ENERGÍA
+   ════════════════════════════════════════ */
+.energy-chart{height:120px;background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;position:relative;overflow:hidden;margin-bottom:12px}
+.energy-curve{position:absolute;inset:0}
+.energy-hours{display:flex;justify-content:space-between;padding:0 12px;margin-top:4px}
+.energy-hour{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim)}
+.energy-calc{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px}
+.energy-result{background:var(--bg4);border-radius:8px;padding:12px 16px;margin-top:12px}
+.er-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px}
+.er-value{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2)}
+.energy-blocks{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;margin:8px 0}
+.eb{height:32px;border-radius:3px;transition:opacity .2s;cursor:pointer;position:relative}
+.eb:hover::after{content:attr(data-tip);position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:var(--bg2);border:0.5px solid var(--bord2);border-radius:6px;padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text);white-space:nowrap;z-index:10}
+
+/* ════════════════════════════════════════
+   MÓDULO 5: EVALUACIÓN
+   ════════════════════════════════════════ */
+.eval-radar{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px;display:flex;justify-content:center}
+.eval-form{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px}
+.eval-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.eval-label{font-size:13px;color:var(--text);min-width:140px}
+.eval-slider{flex:1;-webkit-appearance:none;height:4px;background:var(--bg4);border-radius:2px;outline:none;border:none}
+.eval-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);cursor:pointer}
+.eval-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);min-width:24px;text-align:right}
+.advisor-box{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px;border-left:3px solid var(--gold)}
+.advisor-msg{font-size:14px;color:var(--text);line-height:1.7;font-style:italic}
+
+/* ════════════════════════════════════════
+   MÓDULO 6: CONOCIMIENTO
+   ════════════════════════════════════════ */
+.knowledge-tree{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px;min-height:280px;overflow:auto}
+.kt-root{display:flex;flex-direction:column;align-items:center}
+.kt-node{background:var(--bg4);border:0.5px solid var(--bord2);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text);cursor:pointer;position:relative;transition:border-color .15s}
+.kt-node:hover{border-color:var(--gold)}
+.kt-node.root-node{background:color-mix(in srgb,var(--c7) 20%,var(--bg3));border-color:var(--c7);font-weight:600}
+.kt-children{display:flex;gap:8px;margin-top:12px;position:relative}
+.kt-children::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:1px;height:12px;background:var(--border)}
+.kt-branch{display:flex;flex-direction:column;align-items:center;position:relative}
+.kt-branch::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:1px;height:12px;background:var(--border)}
+
+.importance-calc{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px}
+.ic-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.ic-row:last-of-type{border-bottom:none}
+.ic-subject{font-size:14px;color:var(--text)}
+.ic-bar-wrap{flex:1;margin:0 12px;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.ic-bar{height:100%;border-radius:3px;transition:width .5s ease}
+.ic-pct{font-family:'JetBrains Mono',monospace;font-size:11px;min-width:36px;text-align:right}
+
+/* ════════════════════════════════════════
+   MÓDULO 7: ENTORNO
+   ════════════════════════════════════════ */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.map-spot{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;text-align:center}
+.map-spot:hover{background:var(--bg4);border-color:var(--bord3)}
+.map-spot.fav{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 6%,var(--bg3))}
+.ms-icon{font-size:28px;margin-bottom:8px}
+.ms-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ms-note{font-size:11px;color:var(--muted);font-style:italic}
+.ms-star{position:absolute;top:10px;right:12px;font-size:14px}
+
+.people-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.person-card{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:10px;padding:14px 16px;position:relative}
+.pc-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.pc-tags{display:flex;flex-wrap:wrap;gap:4px}
+.add-person{background:var(--bg3);border:0.5px dashed var(--bord2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);transition:all .15s}
+.add-person:hover{border-color:var(--bord3);color:var(--muted)}
+
+/* ════════════════════════════════════════
+   MÓDULO 8: EL ARRANQUE
+   ════════════════════════════════════════ */
+.emergency-btn{width:100%;background:var(--c2);border:none;border-radius:16px;padding:28px;cursor:pointer;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:-.01em;transition:all .2s;position:relative;overflow:hidden}
+.emergency-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.08) 100%)}
+.emergency-btn:hover{transform:scale(1.01);box-shadow:0 8px 40px color-mix(in srgb,var(--c2) 40%,transparent)}
+.emergency-btn:active{transform:scale(.99)}
+.protocol-steps{display:flex;flex-direction:column;gap:3px}
+.proto-step{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px;opacity:.5;transition:all .4s}
+.proto-step.active{opacity:1;background:var(--bg4);border-color:var(--bord2)}
+.proto-step.done{opacity:.7;background:color-mix(in srgb,var(--c3) 10%,var(--bg3));border-color:var(--c3)}
+.ps-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--dim);min-width:32px}
+.proto-step.active .ps-num{color:var(--gold)}
+.proto-step.done .ps-num{color:var(--c3)}
+.ps-content{flex:1}
+.ps-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px}
+.ps-detail{font-size:12px;color:var(--muted);font-style:italic}
+.ps-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.proto-timer{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:700;text-align:center;color:var(--gold2);letter-spacing:.05em;margin:16px 0}
+.proto-progress{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.proto-prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s}
+
+/* ════════════════════════════════════════
+   MÓDULO 9: CALENDARIO
+   ════════════════════════════════════════ */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-month{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text)}
+.cal-nav{display:flex;gap:4px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-weekday{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-align:center;padding:6px 0;letter-spacing:.06em}
+.cal-day{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:6px 8px;min-height:72px;cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
+.cal-day:hover{background:var(--bg4)}
+.cal-day.today{border-color:var(--gold)}
+.cal-day.today .cal-dn::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--gold);border-radius:1px}
+.cal-day.other-month{opacity:.35}
+.cal-dn{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:4px;position:relative;display:inline-block}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
+.cal-event.examen{background:color-mix(in srgb,var(--c2) 25%,transparent);color:color-mix(in srgb,var(--c2) 80%,var(--text));border:0.5px solid color-mix(in srgb,var(--c2) 40%,transparent)}
+.cal-event.tarea{background:color-mix(in srgb,var(--c7) 25%,transparent);color:color-mix(in srgb,var(--c7) 80%,var(--text));border:0.5px solid color-mix(in srgb,var(--c7) 40%,transparent)}
+.cal-event.meta{background:color-mix(in srgb,var(--c3) 25%,transparent);color:color-mix(in srgb,var(--c3) 80%,var(--text));border:0.5px solid color-mix(in srgb,var(--c3) 40%,transparent)}
+
+/* Add event modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal.open{display:flex}
+.modal-box{background:var(--bg2);border:0.5px solid var(--bord2);border-radius:16px;padding:28px;width:380px;max-width:90vw}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* FUTURE VIEWER */
+.future-viewer{background:var(--bg3);border:0.5px solid var(--bord2);border-radius:12px;padding:20px}
+.fv-timeline{display:flex;gap:3px;overflow-x:auto;padding-bottom:8px}
+.fv-week{flex-shrink:0;background:var(--bg4);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;min-width:100px;cursor:pointer;transition:all .15s}
+.fv-week:hover{background:var(--bg2);border-color:var(--bord2)}
+.fv-week.highlight{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 6%,var(--bg4))}
+.fv-wnum{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px}
+.fv-wlabel{font-size:12px;color:var(--text);font-weight:600;margin-bottom:4px}
+.fv-wdesc{font-size:10px;color:var(--muted);font-style:italic;line-height:1.4}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidenav{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .section,.hero{padding:36px 24px}
+  .g3,.g4{grid-template-columns:1fr}
+  .g2{grid-template-columns:1fr}
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section{animation:fadeIn .4s ease both}
+</style>
+</head>
+<body>
+
+<!-- ── SIDE NAV ── -->
+<nav class="sidenav">
+  <div class="nav-logo">
+    <div class="nav-logo-main">EloicoW</div>
+    <div class="nav-logo-sub">Sistema de Estudio</div>
+  </div>
+  <div class="nav-phase">Fase 01 — Base</div>
+  <div class="nav-item active" onclick="scrollTo('s-arranque')" id="nav-arranque">
+    <div class="nav-item-dot" style="background:#C84B28"></div>El Arranque
+  </div>
+  <div class="nav-item" onclick="scrollTo('s-habitos')" id="nav-habitos">
+    <div class="nav-item-dot" style="background:#1A8C68"></div>Hábitos y Conducta
+  </div>
+  <div class="nav-item" onclick="scrollTo('s-entorno')" id="nav-entorno">
+    <div class="nav-item-dot" style="background:#A06510"></div>Entorno y Contexto
+  </div>
+  <div class="nav-item" onclick="scrollTo('s-calendario')" id="nav-calendario">
+    <div class="nav-item-dot" style="background:#567A14"></div>Calendario y Tiempo
+  </div>
+  <div class="nav-phase">Fase 02 — Construcción</div>
+  <div class="nav-item" onclick="scrollTo('s-mente')" id="nav-mente">
+    <div class="nav-item-dot" style="background:#6B63CC"></div>Mente Académica
+  </div>
+  <div class="nav-item" onclick="scrollTo('s-tecnicas')" id="nav-tecnicas">
+    <div class="nav-item-dot" style="background:#1855A0"></div>Técnicas de Estudio
+  </div>
+  <div class="nav-item" onclick="scrollTo('s-conocimiento')" id="nav-conocimiento">
+    <div class="nav-item-dot" style="background:#8B3388"></div>El Conocimiento
+  </div>
+  <div class="nav-phase">Fase 03 — Operación</div>
+  <div class="nav-item" onclick="scrollTo('s-energia')" id="nav-energia">
+    <div class="nav-item-dot" style="background:#4A42A8"></div>Gestión de Energía
+  </div>
+  <div class="nav-item" onclick="scrollTo('s-evaluacion')" id="nav-evaluacion">
+    <div class="nav-item-dot" style="background:#A85018"></div>Evaluación y Ajuste
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Sistema EloicoW · Odiseas Pompeyanas · Sueño Doctor</div>
+  <div class="hero-title">Sistema de Estudio</div>
+  <div class="hero-sub">9 módulos. 4 fases. Un solo propósito: Medicina UNAM.</div>
+  <div class="hero-chips">
+    <div class="hero-chip">perfil <span>Autodidacta</span></div>
+    <div class="hero-chip">punto débil <span>El Arranque</span></div>
+    <div class="hero-chip">fortaleza <span>Organización previa</span></div>
+    <div class="hero-chip">objetivo <span>Examen UNAM Medicina</span></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     S1: EL ARRANQUE
+     ════════════════════════════════ -->
+<section class="section" id="s-arranque">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#C84B28">Fase 01 · Área crítica</div>
+    <div class="section-title">El Arranque</div>
+    <div class="section-desc">Tu punto débil real. Un protocolo de emergencia para los momentos donde el cerebro se niega a comenzar.</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:3px">
+    <!-- PROTOCOLO DE EMERGENCIA -->
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">🚨 Protocolo de Emergencia</div>
+        <div class="card-sub">Actívalo cuando no puedas arrancar. Tarda menos de 3 minutos.</div>
+        <button class="emergency-btn" onclick="startProtocol()" id="proto-btn">
+          ⚡ ACTIVAR PROTOCOLO
+        </button>
+        <div class="proto-timer" id="proto-timer" style="display:none">00:00</div>
+        <div class="proto-progress" id="proto-progress" style="display:none">
+          <div class="proto-prog-fill" id="proto-prog-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pasos del Protocolo</div>
+        <div class="protocol-steps" id="proto-steps">
+          <div class="proto-step active" data-step="0" data-time="20">
+            <div class="ps-num">1</div>
+            <div class="ps-content">
+              <div class="ps-title">Para todo. Respira.</div>
+              <div class="ps-detail">3 respiraciones profundas. Activa el sistema nervioso parasimpático.</div>
+            </div>
+            <div class="ps-time">20s</div>
+          </div>
+          <div class="proto-step" data-step="1" data-time="30">
+            <div class="ps-num">2</div>
+            <div class="ps-content">
+              <div class="ps-title">Levántate y mueve el cuerpo</div>
+              <div class="ps-detail">10 saltos o 20 pasos. Sube la dopamina físicamente.</div>
+            </div>
+            <div class="ps-time">30s</div>
+          </div>
+          <div class="proto-step" data-step="2" data-time="30">
+            <div class="ps-num">3</div>
+            <div class="ps-content">
+              <div class="ps-title">Abre el material ya preparado</div>
+              <div class="ps-detail">Sin buscar nada. Sin decidir. Todo debe estar listo de ayer.</div>
+            </div>
+            <div class="ps-time">30s</div>
+          </div>
+          <div class="proto-step" data-step="3" data-time="60">
+            <div class="ps-num">4</div>
+            <div class="ps-content">
+              <div class="ps-title">Comprométete a 2 minutos</div>
+              <div class="ps-detail">Solo 2 minutos. No más. Después decides si continúas.</div>
+            </div>
+            <div class="ps-time">60s</div>
+          </div>
+          <div class="proto-step" data-step="4" data-time="0">
+            <div class="ps-num">5</div>
+            <div class="ps-content">
+              <div class="ps-title">Escribe una línea de lo que vas a aprender</div>
+              <div class="ps-detail">"Hoy voy a entender ___." Esa intención escrita activa el modo estudio.</div>
+            </div>
+            <div class="ps-time">libre</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- REGLA 2 MIN + CHECKLIST SEMANAL -->
+    <div class="gap-col">
+      <div class="card" style="border-left:3px solid #C84B28">
+        <div class="card-title">Regla de los 2 minutos</div>
+        <div class="card-sub">Si cuesta arrancar, comprométete solo a esto:</div>
+        <div style="background:var(--bg3);border-radius:10px;padding:16px;text-align:center;margin:8px 0">
+          <div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:#C84B28;line-height:1">2</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.08em">MINUTOS · SOLO ESO</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);font-style:italic;line-height:1.6">Una vez que empiezas, el 90% de las veces continúas. El cerebro no sabe que "solo eran 2 minutos".</div>
+      </div>
+      <div class="card">
+        <div class="card-title">¿Arranqué hoy?</div>
+        <div class="card-sub">Marca los días que sí lograste empezar</div>
+        <div id="arranque-checks" class="check-grid"></div>
+        <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px">
+          <span>Racha actual: <span id="arranque-streak" style="color:#C84B28">0 días</span></span>
+          <span>Semana: <span id="arranque-week-pct" style="color:#C84B28">0%</span></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Noche anterior — checklist</div>
+        <div class="card-sub">Prepara esto hoy para que mañana el arranque no tenga excusas</div>
+        <div id="noche-checks"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S2: HÁBITOS
+     ════════════════════════════════ -->
+<section class="section" id="s-habitos">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#1A8C68">Fase 01 · Área 02</div>
+    <div class="section-title">Hábitos y Conducta</div>
+    <div class="section-desc">Construye tu rutina de estudio. Lo que realmente haces, no lo que planeas.</div>
+  </div>
+  <div class="g2" style="margin-bottom:3px">
+    <!-- CONSTRUCTOR DE RUTINA -->
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Constructor de Rutina</div>
+        <div class="card-sub">Arrastra para reordenar. Clic en × para eliminar.</div>
+        <div class="routine-builder" id="routine-builder"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <input id="rb-time" type="time" style="width:100px;flex-shrink:0" value="08:00"/>
+          <input id="rb-activity" placeholder="Actividad..." style="flex:1"/>
+          <input id="rb-dur" placeholder="45 min" style="width:80px;flex-shrink:0"/>
+          <button class="btn btn-gold" onclick="addRoutineBlock()">+</button>
+        </div>
+      </div>
+    </div>
+    <!-- LÍNEA DEL TIEMPO DEL DÍA + DESCANSO -->
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Tu día — Línea del tiempo</div>
+        <div class="card-sub">Basado en tu rutina construida</div>
+        <div class="timeline" id="day-timeline"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Técnica de Descanso — Pomodoro EloicoW</div>
+        <div class="card-sub">Adaptado a ciclos ultradianos de 90 minutos</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr style="background:var(--bg3)">
+            <th style="padding:8px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);border-radius:6px 0 0 6px">Bloque</th>
+            <th style="padding:8px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Duración</th>
+            <th style="padding:8px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">Tipo</th>
+            <th style="padding:8px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);border-radius:0 6px 6px 0">Qué hacer</th>
+          </tr>
+          <tr><td colspan="4" style="padding:2px"></td></tr>
+          <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:8px 10px;color:#1A8C68;font-weight:600">Estudio</td><td style="padding:8px 10px;color:var(--text)">50 min</td><td style="padding:8px 10px;color:var(--muted);font-style:italic">Foco total</td><td style="padding:8px 10px;color:var(--muted);font-size:11px">Sin celular. Un solo tema.</td></tr>
+          <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:8px 10px;color:var(--gold)">Micro-pausa</td><td style="padding:8px 10px;color:var(--text)">10 min</td><td style="padding:8px 10px;color:var(--muted);font-style:italic">Activa</td><td style="padding:8px 10px;color:var(--muted);font-size:11px">Caminar, estirarse. No pantallas.</td></tr>
+          <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:8px 10px;color:#1A8C68;font-weight:600">Estudio</td><td style="padding:8px 10px;color:var(--text)">50 min</td><td style="padding:8px 10px;color:var(--muted);font-style:italic">Foco total</td><td style="padding:8px 10px;color:var(--muted);font-size:11px">Continúa o nuevo sub-tema.</td></tr>
+          <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:8px 10px;color:var(--c2)">Pausa larga</td><td style="padding:8px 10px;color:var(--text)">20 min</td><td style="padding:8px 10px;color:var(--muted);font-style:italic">Real</td><td style="padding:8px 10px;color:var(--muted);font-size:11px">Come, duerme 20 min o sal.</td></tr>
+          <tr><td style="padding:8px 10px;color:var(--muted);font-style:italic">Repite</td><td style="padding:8px 10px;color:var(--text)">x3</td><td style="padding:8px 10px;color:var(--muted);font-style:italic">Ciclo completo</td><td style="padding:8px 10px;color:var(--muted);font-size:11px">= ~4 horas de estudio real</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S3: ENTORNO
+     ════════════════════════════════ -->
+<section class="section" id="s-entorno">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#A06510">Fase 01 · Área 03</div>
+    <div class="section-title">Entorno y Contexto</div>
+    <div class="section-desc">El mapa de dónde estudias y quién te ayuda con qué materia.</div>
+  </div>
+  <div class="g2" style="margin-bottom:3px">
+    <div class="card">
+      <div class="card-title">🗺️ Mapa de lugares de estudio</div>
+      <div class="card-sub">Toca un lugar para marcarlo como favorito</div>
+      <div class="map-grid" id="map-spots"></div>
+    </div>
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">🔑 Llavero de personas</div>
+        <div class="card-sub">¿Quién te puede ayudar con qué materia?</div>
+        <div class="people-grid" id="people-grid">
+          <div class="add-person" onclick="addPerson()">+ Agregar persona</div>
+        </div>
+      </div>
+      <div class="card" style="border-left:3px solid #A06510">
+        <div class="card-title">Protocolo de entorno ideal</div>
+        <div id="entorno-checks"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S4: CALENDARIO
+     ════════════════════════════════ -->
+<section class="section" id="s-calendario">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#567A14">Fase 01 · Área 04</div>
+    <div class="section-title">Calendario y Tiempo</div>
+    <div class="section-desc">El gran organizador. Todos tus pendientes, exámenes y metas en un solo lugar.</div>
+  </div>
+  <div class="card" style="margin-bottom:3px">
+    <div class="cal-header">
+      <div class="cal-month" id="cal-month-label"></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;gap:6px">
+          <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:color-mix(in srgb,var(--c2) 25%,transparent)"></div>Examen</div>
+          <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:color-mix(in srgb,var(--c7) 25%,transparent)"></div>Tarea</div>
+          <div style="display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)"><div style="width:8px;height:8px;border-radius:2px;background:color-mix(in srgb,var(--c3) 25%,transparent)"></div>Meta</div>
+        </div>
+        <div class="cal-nav">
+          <button class="btn" onclick="calPrev()">‹</button>
+          <button class="btn" onclick="calNext()">›</button>
+        </div>
+        <button class="btn btn-gold" onclick="openAddEvent()">+ Agregar</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-weekdays"></div>
+    <div style="height:4px"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- VISOR DEL FUTURO -->
+  <div class="card">
+    <div class="card-title">🔭 Visor del Futuro</div>
+    <div class="card-sub">Tu camino por semanas — qué viene y cuándo</div>
+    <div class="future-viewer">
+      <div class="fv-timeline" id="fv-timeline"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S5: MENTE ACADÉMICA
+     ════════════════════════════════ -->
+<section class="section" id="s-mente">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#6B63CC">Fase 02 · Área 05</div>
+    <div class="section-title">Mente Académica</div>
+    <div class="section-desc">Ejercicios para comprensión, memoria y atención — con marcador de progreso diario.</div>
+  </div>
+  <div class="g2" style="margin-bottom:3px">
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Marcador de práctica diaria</div>
+        <div class="card-sub">¿Entrené mi mente hoy?</div>
+        <div id="mente-checks" class="check-grid"></div>
+        <div style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px">
+            <span>Progreso del mes</span>
+            <span id="mente-pct" style="color:#6B63CC">0%</span>
+          </div>
+          <div class="pbar"><div class="pbar-fill" id="mente-bar" style="width:0%;background:#6B63CC"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Comprensión — Técnica EloicoW</div>
+        <div class="card-sub">Para cada tema que estudies</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#6B63CC;font-weight:700;min-width:24px">1</div>
+            <div><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px">Lee con pregunta activa</div><div style="font-size:12px;color:var(--muted);font-style:italic">Antes de leer, escribe: ¿qué quiero entender de esto?</div></div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#6B63CC;font-weight:700;min-width:24px">2</div>
+            <div><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px">Cierra y reconstruye</div><div style="font-size:12px;color:var(--muted);font-style:italic">Sin ver el libro, escribe lo que recuerdas en tus palabras.</div></div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#6B63CC;font-weight:700;min-width:24px">3</div>
+            <div><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px">Conecta con algo que ya sabes</div><div style="font-size:12px;color:var(--muted);font-style:italic">¿A qué se parece esto? ¿Dónde lo has visto antes?</div></div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#6B63CC;font-weight:700;min-width:24px">4</div>
+            <div><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px">Explícalo en voz alta</div><div style="font-size:12px;color:var(--muted);font-style:italic">Si no puedes explicarlo simple, no lo entendiste todavía.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Ejercicios por área — con cronómetro</div>
+        <div class="card-sub">Toca un ejercicio para activarlo</div>
+        <div id="exercises-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S6: TÉCNICAS
+     ════════════════════════════════ -->
+<section class="section" id="s-tecnicas">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#1855A0">Fase 02 · Área 06</div>
+    <div class="section-title">Técnicas de Estudio</div>
+    <div class="section-desc">Las técnicas más efectivas, con porcentaje de funcionalidad y materias ideales. Toca para ver los pasos.</div>
+  </div>
+  <div class="g3" id="techniques-grid" style="margin-bottom:12px"></div>
+  <div id="technique-drawer" style="display:none;background:var(--bg3);border:0.5px solid var(--bord2);border-radius:var(--radius);padding:22px;border-left:3px solid var(--c7);margin-bottom:3px;animation:fadeIn .2s ease"></div>
+  <div style="text-align:center">
+    <button class="btn btn-gold" onclick="generateTechnique()" id="gen-btn">✦ Generar técnica personalizada</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S7: CONOCIMIENTO
+     ════════════════════════════════ -->
+<section class="section" id="s-conocimiento">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#8B3388">Fase 02 · Área 07</div>
+    <div class="section-title">El Conocimiento Mismo</div>
+    <div class="section-desc">Mapea la estructura de lo que estudias. Jerarquía, importancia y calculadora de prioridades.</div>
+  </div>
+  <div class="g2" style="margin-bottom:3px">
+    <!-- ÁRBOL DE CONOCIMIENTO -->
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Árbol del conocimiento</div>
+        <div class="card-sub">Visualiza la estructura de tu materia</div>
+        <div class="knowledge-tree" id="knowledge-tree"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <input id="kt-input" placeholder="Nombre del concepto..." style="flex:1"/>
+          <select id="kt-parent" style="width:140px">
+            <option value="">Raíz</option>
+          </select>
+          <button class="btn btn-gold" onclick="addKTNode()">+</button>
+          <button class="btn" onclick="resetKT()">Reset</button>
+        </div>
+      </div>
+    </div>
+    <!-- CALCULADORA DE IMPORTANCIA -->
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Calculadora de importancia</div>
+        <div class="card-sub">Ajusta los pesos según tu objetivo y ve qué estudiar primero</div>
+        <div style="margin-bottom:14px">
+          <label>¿Para qué es el estudio?</label>
+          <select id="goal-select" onchange="updateImportance()">
+            <option value="unam">Examen de selección UNAM</option>
+            <option value="ciclo">Examen de fin de ciclo</option>
+            <option value="sabatical">Año sabático general</option>
+            <option value="rapido">Repaso rápido urgente</option>
+          </select>
+        </div>
+        <div id="importance-calc" class="importance-calc"></div>
+        <div style="margin-top:12px;background:var(--bg3);border-radius:8px;padding:12px;border-left:2px solid #8B3388">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px">RECOMENDACIÓN</div>
+          <div id="importance-advice" style="font-size:13px;color:var(--text);font-style:italic;line-height:1.6"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Jerarquía del conocimiento</div>
+        <div class="card-sub">¿Es fundamento o derivado?</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:color-mix(in srgb,#8B3388 15%,var(--bg3));border:0.5px solid #8B338855;border-radius:8px;padding:12px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#8B3388;margin-bottom:4px">NIVEL 1 — FUNDAMENTO</div>
+            <div style="font-size:13px;color:var(--text)">Conceptos sin los cuales nada más tiene sentido. Sin esto, no estudies lo demás.</div>
+          </div>
+          <div style="background:color-mix(in srgb,#1855A0 10%,var(--bg3));border:0.5px solid #1855A055;border-radius:8px;padding:12px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#1855A0;margin-bottom:4px">NIVEL 2 — ESTRUCTURAL</div>
+            <div style="font-size:13px;color:var(--text)">Conectan los fundamentos entre sí. Requieren el nivel 1 para entenderse.</div>
+          </div>
+          <div style="background:color-mix(in srgb,#567A14 10%,var(--bg3));border:0.5px solid #567A1455;border-radius:8px;padding:12px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#567A14;margin-bottom:4px">NIVEL 3 — DERIVADO</div>
+            <div style="font-size:13px;color:var(--text)">Aplicaciones y detalles. Se estudian al final, cuando los niveles 1 y 2 están sólidos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S8: ENERGÍA
+     ════════════════════════════════ -->
+<section class="section" id="s-energia">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#4A42A8">Fase 03 · Área 08</div>
+    <div class="section-title">Gestión de Energía</div>
+    <div class="section-desc">Conoce tu curva de energía. Calculadora para saber cuándo estudiar y cuándo descansar.</div>
+  </div>
+  <div class="g2" style="margin-bottom:3px">
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Tu curva de energía hoy</div>
+        <div class="card-sub">Basada en tu hora de despertar. Personaliza abajo.</div>
+        <canvas id="energy-canvas" width="400" height="140" style="width:100%;border-radius:8px;background:var(--bg3)"></canvas>
+        <div class="energy-hours" id="energy-hours-labels"></div>
+        <div style="display:flex;gap:12px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:9px">
+          <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:4px;border-radius:2px;background:#4A42A8"></div>Energía</div>
+          <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:4px;border-radius:2px;background:var(--gold)"></div>Pico óptimo</div>
+          <div style="display:flex;align-items:center;gap:4px"><div style="width:12px;height:4px;border-radius:2px;background:var(--c2)"></div>Valle</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Bloques de energía por hora</div>
+        <div class="card-sub">Rojo = valle · Morado = pico · Gris = normal</div>
+        <div class="energy-blocks" id="energy-blocks"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between">
+          <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
+        </div>
+      </div>
+    </div>
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Calculadora de energía</div>
+        <div class="card-sub">Ingresa tu rutina y calcula cuándo tienes más energía</div>
+        <div class="energy-calc">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div class="form-group">
+              <label>Me despierto a las</label>
+              <input type="time" id="wake-time" value="07:00" onchange="recalcEnergy()"/>
+            </div>
+            <div class="form-group">
+              <label>Me duermo a las</label>
+              <input type="time" id="sleep-time" value="23:00" onchange="recalcEnergy()"/>
+            </div>
+            <div class="form-group">
+              <label>Horas de sueño anoche</label>
+              <input type="number" id="sleep-hours" value="7" min="4" max="10" onchange="recalcEnergy()"/>
+            </div>
+            <div class="form-group">
+              <label>¿Comí bien hoy?</label>
+              <select id="ate-well" onchange="recalcEnergy()">
+                <option value="1">Sí</option>
+                <option value="0.7">Más o menos</option>
+                <option value="0.4">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="energy-result" id="energy-result"></div>
+        </div>
+      </div>
+      <div class="card" style="border-left:3px solid #4A42A8">
+        <div class="card-title">Señales de fatiga mental</div>
+        <div class="card-sub">Cuando aparezcan: para, no te esfuerces más</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:10px;align-items:center;padding:8px;background:var(--bg3);border-radius:8px">
+            <div style="font-size:18px">🔄</div>
+            <div style="font-size:13px;color:var(--text)">Relees el mismo párrafo sin entender</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:8px;background:var(--bg3);border-radius:8px">
+            <div style="font-size:18px">💭</div>
+            <div style="font-size:13px;color:var(--text)">Tu mente divaga constantemente</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:8px;background:var(--bg3);border-radius:8px">
+            <div style="font-size:18px">⏰</div>
+            <div style="font-size:13px;color:var(--text)">Miras el reloj cada 5 minutos</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:8px;background:var(--bg3);border-radius:8px">
+            <div style="font-size:18px">✏️</div>
+            <div style="font-size:13px;color:var(--text)">Te cuesta escribir o formular ideas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     S9: EVALUACIÓN
+     ════════════════════════════════ -->
+<section class="section" id="s-evaluacion">
+  <div class="section-header">
+    <div class="section-eyebrow" style="color:#A85018">Fase 03 · Área 09</div>
+    <div class="section-title">Evaluación y Ajuste</div>
+    <div class="section-desc">Mide tu avance real. Diagrama de evaluación semanal y consejero de ajustes.</div>
+  </div>
+  <div class="g2" style="margin-bottom:3px">
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Evaluación semanal — Radar</div>
+        <div class="card-sub">Evalúa tu semana en cada área</div>
+        <div class="eval-form" id="eval-form"></div>
+        <button class="btn btn-gold" onclick="runEval()" style="width:100%;margin-top:12px;padding:12px">Evaluar mi semana →</button>
+      </div>
+    </div>
+    <div class="gap-col">
+      <div class="card">
+        <div class="card-title">Resultado visual</div>
+        <div class="card-sub">Tu diagrama de evaluación</div>
+        <canvas id="radar-canvas" width="320" height="280" style="width:100%;display:block"></canvas>
+      </div>
+      <div class="card advisor-box" id="advisor-box">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.1em;margin-bottom:8px">CONSEJERO ELOICOW</div>
+        <div class="advisor-msg" id="advisor-msg">Completa la evaluación de la semana para recibir recomendaciones específicas de ajuste.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sistema de semáforo</div>
+        <div class="card-sub">¿En qué estado está tu preparación?</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:10px;align-items:center;padding:10px 14px;background:color-mix(in srgb,#1A8C68 12%,var(--bg3));border-radius:8px;border:0.5px solid #1A8C6844">
+            <div style="width:12px;height:12px;border-radius:50%;background:#1A8C68;flex-shrink:0"></div>
+            <div><div style="font-size:13px;font-weight:600;color:#9FE1CB">Verde — En camino</div><div style="font-size:11px;color:var(--muted);font-style:italic">Cumples el plan consistentemente. Mantén el ritmo.</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:10px 14px;background:color-mix(in srgb,#A06510 12%,var(--bg3));border-radius:8px;border:0.5px solid #A0651044">
+            <div style="width:12px;height:12px;border-radius:50%;background:#A06510;flex-shrink:0"></div>
+            <div><div style="font-size:13px;font-weight:600;color:#FAC775">Ámbar — Ajustar</div><div style="font-size:11px;color:var(--muted);font-style:italic">Hay áreas flojas. Identificar y corregir esta semana.</div></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;padding:10px 14px;background:color-mix(in srgb,#C84B28 12%,var(--bg3));border-radius:8px;border:0.5px solid #C84B2844">
+            <div style="width:12px;height:12px;border-radius:50%;background:#C84B28;flex-shrink:0"></div>
+            <div><div style="font-size:13px;font-weight:600;color:#F5C4B3">Rojo — Reiniciar</div><div style="font-size:11px;color:var(--muted);font-style:italic">El sistema no está funcionando. Volver a Fase 1.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- MODAL AGREGAR EVENTO -->
+<div class="modal" id="event-modal">
+  <div class="modal-box">
+    <div class="modal-title">Agregar al calendario</div>
+    <div class="form-group">
+      <label>Título</label>
+      <input id="event-title" placeholder="Examen de Biología..."/>
+    </div>
+    <div class="form-group">
+      <label>Fecha</label>
+      <input id="event-date" type="date"/>
+    </div>
+    <div class="form-group">
+      <label>Tipo</label>
+      <select id="event-type">
+        <option value="examen">Examen</option>
+        <option value="tarea">Tarea / Pendiente</option>
+        <option value="meta">Meta personal</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveEvent()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   DATOS Y UTILIDADES
+   ════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const qs = sel => document.querySelector(sel);
+
+// Persistent state
+const STATE = {
+  arranqueChecks: JSON.parse(localStorage.getItem('arranque_checks') || '{}'),
+  menteChecks: JSON.parse(localStorage.getItem('mente_checks') || '{}'),
+  routine: JSON.parse(localStorage.getItem('routine') || '[]'),
+  events: JSON.parse(localStorage.getItem('cal_events') || '[]'),
+  people: JSON.parse(localStorage.getItem('people') || '[]'),
+  favSpots: JSON.parse(localStorage.getItem('fav_spots') || '[]'),
+  ktNodes: JSON.parse(localStorage.getItem('kt_nodes') || 'null'),
+  evalScores: JSON.parse(localStorage.getItem('eval_scores') || 'null'),
+};
+function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+/* ════════════════════
+   NAV SCROLL
+   ════════════════════ */
+function scrollTo(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+// Highlight nav on scroll
+const sections = ['s-arranque','s-habitos','s-entorno','s-calendario','s-mente','s-tecnicas','s-conocimiento','s-energia','s-evaluacion'];
+const navMap = {'s-arranque':'nav-arranque','s-habitos':'nav-habitos','s-entorno':'nav-entorno','s-calendario':'nav-calendario','s-mente':'nav-mente','s-tecnicas':'nav-tecnicas','s-conocimiento':'nav-conocimiento','s-energia':'nav-energia','s-evaluacion':'nav-evaluacion'};
+window.addEventListener('scroll', ()=>{
+  let current = sections[0];
+  sections.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top < 120) current = id;
+  });
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl = document.getElementById(navMap[current]);
+  if(navEl) navEl.classList.add('active');
+});
+
+/* ════════════════════
+   MÓDULO 1: ARRANQUE
+   ════════════════════ */
+const DAYS = ['L','M','X','J','V','S','D'];
+function renderArranqueChecks(){
+  const el = $('arranque-checks');
+  if(!el) return;
+  el.innerHTML = '';
+  const today = new Date();
+  let streak = 0;
+  let weekDone = 0;
+  for(let i=6;i>=0;i--){
+    const d = new Date(today);
+    d.setDate(today.getDate()-i);
+    const key = d.toISOString().split('T')[0];
+    const done = STATE.arranqueChecks[key];
+    if(done) weekDone++;
+    const div = document.createElement('div');
+    div.className = 'day-check' + (done?' done':'');
+    div.innerHTML = `<div class="ck-day">${DAYS[d.getDay()==0?6:d.getDay()-1]}</div><div class="ck-mark">${done?'✓':'·'}</div>`;
+    div.onclick = ()=>{
+      STATE.arranqueChecks[key] = !done;
+      save('arranque_checks', STATE.arranqueChecks);
+      renderArranqueChecks();
+    };
+    el.appendChild(div);
+  }
+  // streak
+  for(let i=0;i<30;i++){
+    const d = new Date(today);
+    d.setDate(today.getDate()-i);
+    const key = d.toISOString().split('T')[0];
+    if(STATE.arranqueChecks[key]) streak++;
+    else break;
+  }
+  $('arranque-streak').textContent = streak + ' días';
+  $('arranque-week-pct').textContent = Math.round(weekDone/7*100) + '%';
+}
+
+// Noche anterior checklist
+const nocheItems = ['Material del día siguiente preparado','Tema escrito en papel','Anki configurado','Celular en modo no molestar a las 22:00','Hora de dormir definida'];
+function renderNocheChecks(){
+  const el = $('noche-checks');
+  if(!el) return;
+  el.innerHTML = '';
+  nocheItems.forEach((item, i)=>{
+    const key = 'noche_'+i;
+    const done = STATE.arranqueChecks[key];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);cursor:pointer';
+    row.innerHTML = `<div style="width:16px;height:16px;border-radius:4px;border:0.5px solid ${done?'var(--c3)':'var(--bord2)'};background:${done?'color-mix(in srgb,var(--c3) 20%,transparent)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--c3)">${done?'✓':''}</div><div style="font-size:13px;color:${done?'var(--muted)':'var(--text)'};${done?'text-decoration:line-through':''}">${item}</div>`;
+    row.onclick = ()=>{
+      STATE.arranqueChecks[key] = !done;
+      save('arranque_checks', STATE.arranqueChecks);
+      renderNocheChecks();
+    };
+    el.appendChild(row);
+  });
+}
+
+// Protocolo de emergencia
+let protoRunning = false, protoStep = 0, protoInterval = null;
+const protoTimes = [20, 30, 30, 60, 0];
+let protoStepTime = 0, protoStepTotal = 0;
+
+function startProtocol(){
+  if(protoRunning){ resetProtocol(); return; }
+  protoRunning = true;
+  $('proto-btn').textContent = '⏹ DETENER';
+  $('proto-btn').style.background = 'var(--dim)';
+  $('proto-timer').style.display = 'block';
+  $('proto-progress').style.display = 'block';
+  protoStep = 0;
+  runProtoStep();
+}
+function runProtoStep(){
+  const steps = document.querySelectorAll('.proto-step');
+  steps.forEach((s,i)=>{
+    s.classList.toggle('active', i===protoStep);
+    if(i<protoStep) s.classList.add('done');
+  });
+  protoStepTotal = protoTimes[protoStep] || 0;
+  protoStepTime = protoStepTotal;
+  if(protoStepTotal === 0){ updateProtoTimer(0,0); return; }
+  clearInterval(protoInterval);
+  protoInterval = setInterval(()=>{
+    protoStepTime--;
+    const pct = (1 - protoStepTime/protoStepTotal)*100;
+    updateProtoTimer(protoStepTime, pct);
+    if(protoStepTime <= 0){
+      clearInterval(protoInterval);
+      protoStep++;
+      if(protoStep < protoTimes.length) setTimeout(runProtoStep, 400);
+      else { resetProtocol(); $('proto-btn').textContent = '✓ COMPLETADO — ESTUDIA YA'; $('proto-btn').style.background = 'var(--c3)'; }
+    }
+  }, 1000);
+}
+function updateProtoTimer(t, pct){
+  const m = Math.floor(t/60).toString().padStart(2,'0');
+  const s = (t%60).toString().padStart(2,'0');
+  $('proto-timer').textContent = m+':'+s;
+  $('proto-prog-fill').style.width = pct+'%';
+}
+function resetProtocol(){
+  clearInterval(protoInterval);
+  protoRunning = false;
+  protoStep = 0;
+  $('proto-btn').textContent = '⚡ ACTIVAR PROTOCOLO';
+  $('proto-btn').style.background = '';
+  $('proto-timer').style.display = 'none';
+  $('proto-progress').style.display = 'none';
+  document.querySelectorAll('.proto-step').forEach((s,i)=>{
+    s.classList.toggle('active', i===0);
+    s.classList.remove('done');
+  });
+}
+
+/* ════════════════════
+   MÓDULO 2: HÁBITOS
+   ════════════════════ */
+const DEFAULT_ROUTINE = [
+  {time:'07:00', activity:'Ritual de arranque', dur:'15 min'},
+  {time:'07:30', activity:'Bloque 1 — Biología', dur:'90 min'},
+  {time:'09:00', activity:'Descanso activo', dur:'15 min'},
+  {time:'09:15', activity:'Bloque 2 — Química', dur:'90 min'},
+  {time:'10:45', activity:'Pausa — comida', dur:'60 min'},
+  {time:'12:00', activity:'Bloque 3 — Repaso + Anki', dur:'90 min'},
+  {time:'13:30', activity:'Vita Sportiva', dur:'60 min'},
+  {time:'20:00', activity:'Revisión del día', dur:'30 min'},
+];
+function renderRoutine(){
+  if(STATE.routine.length===0) STATE.routine = [...DEFAULT_ROUTINE];
+  const el = $('routine-builder');
+  if(!el) return;
+  el.innerHTML = '';
+  STATE.routine.forEach((block, i)=>{
+    const div = document.createElement('div');
+    div.className = 'routine-block';
+    div.innerHTML = `<div class="rb-time">${block.time}</div><div class="rb-activity">${block.activity}</div><div class="rb-dur">${block.dur}</div><button class="rb-del" onclick="delRoutineBlock(${i})">×</button>`;
+    el.appendChild(div);
+  });
+  renderTimeline();
+}
+function addRoutineBlock(){
+  const t = $('rb-time').value;
+  const a = $('rb-activity').value.trim();
+  const d = $('rb-dur').value.trim();
+  if(!a) return;
+  STATE.routine.push({time:t, activity:a, dur:d||'—'});
+  STATE.routine.sort((a,b)=>a.time.localeCompare(b.time));
+  save('routine', STATE.routine);
+  renderRoutine();
+  $('rb-activity').value='';
+}
+function delRoutineBlock(i){
+  STATE.routine.splice(i,1);
+  save('routine', STATE.routine);
+  renderRoutine();
+}
+function renderTimeline(){
+  const el = $('day-timeline');
+  if(!el) return;
+  el.innerHTML = '';
+  STATE.routine.forEach(block=>{
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    div.innerHTML = `<div class="tl-time">${block.time}</div><div class="tl-label">${block.activity}</div><div class="tl-note">${block.dur}</div>`;
+    el.appendChild(div);
+  });
+}
+
+/* ════════════════════
+   MÓDULO 3: ENTORNO
+   ════════════════════ */
+const SPOTS = [
+  {icon:'🏠', name:'Tu cuarto', note:'Control total del entorno'},
+  {icon:'📚', name:'Biblioteca UNAM', note:'Máximo foco, cero distracciones'},
+  {icon:'☕', name:'Cafetería tranquila', note:'Ruido blanco natural'},
+  {icon:'🏛️', name:'Facultad de Medicina', note:'Inmersión en el ambiente'},
+  {icon:'🌳', name:'Parque con Wi-Fi', note:'Para repasos y Anki'},
+  {icon:'🏥', name:'Hospital 20 Nov', note:'Contexto real de Medicina'},
+];
+function renderSpots(){
+  const el = $('map-spots');
+  if(!el) return;
+  el.innerHTML = '';
+  SPOTS.forEach((spot, i)=>{
+    const fav = STATE.favSpots.includes(i);
+    const div = document.createElement('div');
+    div.className = 'map-spot' + (fav?' fav':'');
+    div.style.position = 'relative';
+    div.innerHTML = `<div class="ms-icon">${spot.icon}</div><div class="ms-name">${spot.name}</div><div class="ms-note">${spot.note}</div>${fav?'<div class="ms-star">⭐</div>':''}`;
+    div.onclick = ()=>{
+      const idx = STATE.favSpots.indexOf(i);
+      if(idx>-1) STATE.favSpots.splice(idx,1);
+      else STATE.favSpots.push(i);
+      save('fav_spots', STATE.favSpots);
+      renderSpots();
+    };
+    el.appendChild(div);
+  });
+}
+function renderPeople(){
+  const el = $('people-grid');
+  if(!el) return;
+  const addBtn = el.querySelector('.add-person');
+  // Remove person cards
+  el.querySelectorAll('.person-card').forEach(c=>c.remove());
+  STATE.people.forEach((p, i)=>{
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.innerHTML = `<button style="position:absolute;top:8px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px" onclick="delPerson(${i})">×</button><div class="pc-name">${p.name}</div><div class="pc-tags">${p.subjects.map(s=>`<span class="tag" style="border-color:var(--bord2);color:var(--muted)">${s}</span>`).join('')}</div>`;
+    el.insertBefore(card, addBtn);
+  });
+}
+function addPerson(){
+  const name = prompt('Nombre de la persona:');
+  if(!name) return;
+  const subjects = (prompt('¿Con qué materias puede ayudarte? (separadas por coma)')||'').split(',').map(s=>s.trim()).filter(Boolean);
+  STATE.people.push({name, subjects});
+  save('people', STATE.people);
+  renderPeople();
+}
+function delPerson(i){
+  STATE.people.splice(i,1);
+  save('people', STATE.people);
+  renderPeople();
+}
+const ENTORNO_ITEMS = ['Celular en otra habitación o modo avión','Escritorio despejado — solo lo necesario','Agua y snack preparados','Temperatura entre 18–22°C','Notificaciones silenciadas','Headphones con ruido blanco si hay ruido'];
+function renderEntornoChecks(){
+  const el = $('entorno-checks');
+  if(!el) return;
+  el.innerHTML = '';
+  ENTORNO_ITEMS.forEach((item, i)=>{
+    const key = 'entorno_'+i;
+    const done = STATE.arranqueChecks[key];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);cursor:pointer';
+    row.innerHTML = `<div style="width:16px;height:16px;border-radius:4px;border:0.5px solid ${done?'var(--gold)':'var(--bord2)'};background:${done?'color-mix(in srgb,var(--gold) 15%,transparent)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--gold)">${done?'✓':''}</div><div style="font-size:13px;color:${done?'var(--muted)':'var(--text)'};${done?'text-decoration:line-through':''}">${item}</div>`;
+    row.onclick = ()=>{
+      STATE.arranqueChecks[key] = !done;
+      save('arranque_checks', STATE.arranqueChecks);
+      renderEntornoChecks();
+    };
+    el.appendChild(row);
+  });
+}
+
+/* ════════════════════
+   MÓDULO 4: CALENDARIO
+   ════════════════════ */
+let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const WDAYS = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+
+function renderCalendar(){
+  $('cal-month-label').textContent = MONTHS[calMonth] + ' ' + calYear;
+  const wdEl = $('cal-weekdays');
+  wdEl.innerHTML = WDAYS.map(d=>`<div class="cal-weekday">${d}</div>`).join('');
+
+  const grid = $('cal-grid');
+  grid.innerHTML = '';
+
+  const first = new Date(calYear, calMonth, 1);
+  let startDow = first.getDay()-1; if(startDow<0) startDow=6;
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+
+  for(let i=0;i<42;i++){
+    let day, month, year, isOther=false;
+    if(i < startDow){ day=daysInPrev-startDow+1+i; month=calMonth-1; year=calYear; isOther=true; }
+    else if(i >= startDow+daysInMonth){ day=i-startDow-daysInMonth+1; month=calMonth+1; year=calYear; isOther=true; }
+    else{ day=i-startDow+1; month=calMonth; year=calYear; }
+
+    const m = ((month%12)+12)%12;
+    const y = year + Math.floor(month/12);
+    const dateStr = y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const isToday = day===today.getDate() && m===today.getMonth() && y===today.getFullYear();
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (isOther?' other-month':'') + (isToday?' today':'');
+    cell.innerHTML = `<div class="cal-dn">${day}</div>`;
+
+    STATE.events.filter(e=>e.date===dateStr).forEach(ev=>{
+      const evEl = document.createElement('div');
+      evEl.className = 'cal-event '+ev.type;
+      evEl.textContent = ev.title;
+      evEl.title = ev.title;
+      evEl.onclick = (e)=>{ e.stopPropagation(); if(confirm('¿Eliminar: '+ev.title+'?')){ STATE.events.splice(STATE.events.indexOf(ev),1); save('cal_events',STATE.events); renderCalendar(); }};
+      cell.appendChild(evEl);
+    });
+    cell.ondblclick = ()=>{ $('event-date').value=dateStr; openAddEvent(); };
+    grid.appendChild(cell);
+  }
+  renderFutureViewer();
+}
+function calPrev(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function calNext(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+function openAddEvent(){ $('event-modal').classList.add('open'); }
+function closeModal(){ $('event-modal').classList.remove('open'); }
+function saveEvent(){
+  const title=$('event-title').value.trim();
+  const date=$('event-date').value;
+  const type=$('event-type').value;
+  if(!title||!date) return;
+  STATE.events.push({title,date,type});
+  save('cal_events',STATE.events);
+  $('event-title').value='';
+  closeModal();
+  renderCalendar();
+}
+
+function renderFutureViewer(){
+  const el = $('fv-timeline');
+  if(!el) return;
+  el.innerHTML = '';
+  const phases = [
+    {label:'Cimientos',desc:'Rutina, entorno y arranque',color:'var(--p1)',wks:4},
+    {label:'Construcción',desc:'Técnicas y conocimiento',color:'var(--p2)',wks:4},
+    {label:'Profundidad',desc:'Estudio intensivo',color:'var(--p3)',wks:4},
+    {label:'Examen',desc:'Simulacros y repaso final',color:'var(--p4)',wks:2},
+  ];
+  let wk = 1;
+  phases.forEach(p=>{
+    for(let i=0;i<p.wks;i++){
+      const div = document.createElement('div');
+      div.className = 'fv-week' + (i===0?' highlight':'');
+      div.style.borderTopColor = i===0 ? p.color : 'transparent';
+      div.style.borderTopWidth = '2px';
+      div.style.borderTopStyle = 'solid';
+      div.innerHTML = `<div class="fv-wnum" style="color:${p.color}">Sem ${wk}</div><div class="fv-wlabel">${p.label}</div><div class="fv-wdesc">${i===0?p.desc:'Continúa...'}</div>`;
+      el.appendChild(div);
+      wk++;
+    }
+  });
+}
+
+/* ════════════════════
+   MÓDULO 5: MENTE
+   ════════════════════ */
+function renderMenteChecks(){
+  const el = $('mente-checks');
+  if(!el) return;
+  el.innerHTML = '';
+  const today = new Date();
+  let done = 0;
+  for(let i=6;i>=0;i--){
+    const d = new Date(today);
+    d.setDate(today.getDate()-i);
+    const key = 'mente_'+d.toISOString().split('T')[0];
+    const isDone = STATE.menteChecks[key];
+    if(isDone) done++;
+    const div = document.createElement('div');
+    div.className = 'day-check'+(isDone?' done':'');
+    div.innerHTML = `<div class="ck-day">${DAYS[d.getDay()==0?6:d.getDay()-1]}</div><div class="ck-mark">${isDone?'✓':'·'}</div>`;
+    div.onclick = ()=>{
+      STATE.menteChecks[key] = !isDone;
+      save('mente_checks',STATE.menteChecks);
+      renderMenteChecks();
+    };
+    el.appendChild(div);
+  }
+  const pct = Math.round(done/7*100);
+  $('mente-pct').textContent = pct+'%';
+  $('mente-bar').style.width = pct+'%';
+}
+
+const EXERCISES = [
+  {name:'Comprensión — Feynman Express',area:'Comprensión',pct:92,color:'#6B63CC',dur:300,desc:'Elige un concepto que estudiaste hoy. Cierra todo. Explícalo como si le enseñaras a alguien de 10 años.'},
+  {name:'Memoria — Recall libre',area:'Memoria',pct:88,color:'#6B63CC',dur:180,desc:'Cierra el libro. Escribe en papel todo lo que recuerdas del tema. Sin ver. Todo vale. Luego compara.'},
+  {name:'Atención — Lectura activa 5 min',area:'Atención',pct:85,color:'#6B63CC',dur:300,desc:'Lee durante 5 minutos exactos sin ninguna distracción. Al terminar, escribe las 3 ideas principales.'},
+  {name:'Razonamiento — Pregunta de examen',area:'Razonamiento',pct:94,color:'#6B63CC',dur:600,desc:'Resuelve una pregunta de examen anterior UNAM sin notas. Simula condiciones reales.'},
+];
+let activeExercise = -1;
+let exTimer = null, exTime = 0;
+function renderExercises(){
+  const el = $('exercises-list');
+  if(!el) return;
+  el.innerHTML = '';
+  EXERCISES.forEach((ex, i)=>{
+    const div = document.createElement('div');
+    div.className = 'exercise-card'+(activeExercise===i?' open':'');
+    div.innerHTML = `
+      <div class="ex-header">
+        <div class="ex-title">${ex.name}</div>
+        <div class="ex-pct" style="color:${ex.color}">${ex.pct}%</div>
+      </div>
+      <div class="pbar"><div class="pbar-fill" style="width:${ex.pct}%;background:${ex.color}"></div></div>
+      <div class="ex-desc">${ex.desc}</div>
+      <div class="ex-timer">
+        <div class="timer-display" id="ex-timer-${i}">${formatTime(ex.dur)}</div>
+        <div class="timer-btns">
+          <button class="btn btn-gold" onclick="toggleExTimer(${i}, ${ex.dur})">▶ Iniciar</button>
+          <button class="btn" onclick="resetExTimer(${i}, ${ex.dur})">↺ Reset</button>
+        </div>
+      </div>
+    `;
+    div.onclick = (e)=>{
+      if(e.target.closest('button')) return;
+      activeExercise = activeExercise===i ? -1 : i;
+      renderExercises();
+    };
+    el.appendChild(div);
+  });
+}
+function formatTime(s){ return Math.floor(s/60).toString().padStart(2,'0')+':'+((s%60).toString().padStart(2,'0')); }
+let exRunning = {}, exIntervals = {};
+function toggleExTimer(i, total){
+  const btn = document.querySelectorAll('.timer-btns')[i]?.querySelector('button');
+  if(exRunning[i]){
+    clearInterval(exIntervals[i]);
+    exRunning[i] = false;
+    if(btn) btn.textContent = '▶ Continuar';
+  } else {
+    if(!exTime[i]) exTime[i] = total;
+    exRunning[i] = true;
+    if(btn) btn.textContent = '⏸ Pausar';
+    exIntervals[i] = setInterval(()=>{
+      exTime[i]--;
+      const el = $('ex-timer-'+i);
+      if(el) el.textContent = formatTime(exTime[i]);
+      if(exTime[i] <= 0){ clearInterval(exIntervals[i]); exRunning[i]=false; if(el) el.textContent = '✓ Completado'; }
+    }, 1000);
+  }
+}
+function resetExTimer(i, total){ clearInterval(exIntervals[i]); exRunning[i]=false; exTime[i]=total; const el=$('ex-timer-'+i); if(el) el.textContent=formatTime(total); }
+
+/* ════════════════════
+   MÓDULO 6: TÉCNICAS
+   ════════════════════ */
+const TECHNIQUES = [
+  {name:'Repetición espaciada (Anki)',pct:96,color:'#1855A0',materias:['Todas','Biología','Química','Historia'],steps:['Instala Anki en tu dispositivo','Crea un mazo por materia','Agrega tarjetas con una pregunta al frente y la respuesta atrás','Estudia las tarjetas que Anki te muestre cada día — no más','Revisa tu progreso cada domingo'],when:'Para memorización de volumen alto. Esencial para ciencias básicas.'},
+  {name:'Técnica Feynman',pct:92,color:'#1855A0',materias:['Biología','Química','Física','Conceptos complejos'],steps:['Elige un concepto que acabas de estudiar','Cierra el libro y todo el material','Explícalo en papel como si enseñaras a alguien sin conocimiento previo','Identifica los huecos donde te atascas','Regresa al libro solo para llenar esos huecos específicos','Repite hasta que fluya sin consultar'],when:'Para comprensión profunda. Cuando lees pero no entiendes realmente.'},
+  {name:'Recuperación activa',pct:90,color:'#1855A0',materias:['Todas'],steps:['Estudia un bloque de información','Cierra el libro inmediatamente','Escribe todo lo que recuerdas — sin ver','Compara con el original','Marca lo que faltó y estúdialo específicamente','Repite al día siguiente y en 3 días'],when:'Mejor reemplazo al subrayado. Para cualquier materia.'},
+  {name:'Método Cornell',pct:82,color:'#1855A0',materias:['Clases','Lecturas largas','Historia','Biología'],steps:['Divide la hoja: columna izquierda angosta, derecha amplia, pie de página','En la derecha: toma notas durante el estudio','En la izquierda: escribe preguntas clave al terminar','En el pie: escribe el resumen en 3 líneas','Para repasar: cubre la derecha, responde las preguntas de la izquierda'],when:'Para organizar notas de lectura o clase. Ideal si tienes mucho texto.'},
+  {name:'Práctica de exámenes',pct:94,color:'#1855A0',materias:['Todas','Examen UNAM','Matemáticas'],steps:['Consigue exámenes anteriores del UNAM (disponibles online)','Bloquea el tiempo como si fuera el examen real','Resuelve sin consultar notas ni internet','Califica y analiza cada error','Estudia específicamente lo que fallaste','Repite cada semana'],when:'La herramienta más cercana al examen real. Úsala desde la primera semana.'},
+  {name:'Mapa mental',pct:78,color:'#1855A0',materias:['Biología','Historia','Temas complejos'],steps:['Escribe el tema central en el centro de la hoja','Dibuja ramas para cada subtema principal','Añade ramas secundarias con detalles','Usa colores distintos por rama','Sin sentencias completas — solo palabras clave'],when:'Para ver la estructura global de un tema. No para memorizar detalles.'},
+];
+let openTechnique = -1;
+function renderTechniques(){
+  const grid = $('techniques-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  TECHNIQUES.forEach((t, i)=>{
+    const div = document.createElement('div');
+    div.className = 'technique-card';
+    div.style.setProperty('--tc', t.color);
+    div.innerHTML = `
+      <div class="tc-head">
+        <div class="tc-name">${t.name}</div>
+        <div class="tc-pct" style="color:${t.color}">${t.pct}%</div>
+      </div>
+      <div class="pbar"><div class="pbar-fill" style="width:${t.pct}%;background:${t.color}"></div></div>
+      <div class="tc-desc">${t.when}</div>
+      <div class="tc-materias">${t.materias.map(m=>`<span class="tag" style="border-color:${t.color}44;color:${t.color}">${m}</span>`).join('')}</div>
+    `;
+    div.onclick = ()=>openTechniqueDetail(i);
+    grid.appendChild(div);
+  });
+}
+function openTechniqueDetail(i){
+  const drawer = $('technique-drawer');
+  if(openTechnique===i){ drawer.style.display='none'; openTechnique=-1; return; }
+  openTechnique = i;
+  const t = TECHNIQUES[i];
+  drawer.style.display = 'block';
+  drawer.style.borderLeftColor = t.color;
+  drawer.innerHTML = `
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:${t.color};margin-bottom:8px">${t.name}</div>
+    <div style="font-size:13px;color:var(--muted);font-style:italic;margin-bottom:16px">${t.when}</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Cómo aplicarla — paso a paso:</div>
+    <ol class="tc-steps" style="--tc:${t.color}">${t.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+  `;
+}
+function generateTechnique(){
+  const btn = $('gen-btn');
+  btn.textContent = '⟳ Generando...';
+  btn.disabled = true;
+  setTimeout(()=>{
+    const combos = [
+      {name:'Feynman + Anki',desc:'Aprende el concepto con Feynman, luego convierte los puntos donde fallaste en tarjetas Anki. Combina comprensión profunda con retención espaciada.',color:'#1855A0'},
+      {name:'Cornell + Recuperación activa',desc:'Toma notas en formato Cornell, luego cubre las notas y responde las preguntas de memoria. Lo que no recuerdes se convierte en tu estudio del día siguiente.',color:'#8B3388'},
+      {name:'Práctica + Feynman inverso',desc:'Resuelve exámenes anteriores, luego explica en voz alta cada error como si enseñaras por qué fallaste. El error explicado no se repite.',color:'#A06510'},
+    ];
+    const combo = combos[Math.floor(Math.random()*combos.length)];
+    const drawer = $('technique-drawer');
+    drawer.style.display = 'block';
+    drawer.style.borderLeftColor = combo.color;
+    drawer.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${combo.color};letter-spacing:.1em;margin-bottom:8px">✦ TÉCNICA GENERADA</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:${combo.color};margin-bottom:8px">${combo.name}</div><div style="font-size:14px;color:var(--text);line-height:1.7">${combo.desc}</div>`;
+    btn.textContent = '✦ Generar técnica personalizada';
+    btn.disabled = false;
+  }, 800);
+}
+
+/* ════════════════════
+   MÓDULO 7: CONOCIMIENTO
+   ════════════════════ */
+let ktData = STATE.ktNodes || {id:0, name:'Mi materia principal', children:[]};
+let ktNextId = 10;
+
+function renderKT(){
+  const el = $('knowledge-tree');
+  if(!el) return;
+  el.innerHTML = '';
+  el.appendChild(renderKTNode(ktData, true));
+  updateKTSelect();
+}
+function renderKTNode(node, isRoot){
+  const wrap = document.createElement('div');
+  wrap.className = 'kt-branch';
+  const div = document.createElement('div');
+  div.className = 'kt-node'+(isRoot?' root-node':'');
+  div.textContent = node.name;
+  div.onclick = (e)=>{ e.stopPropagation(); if(!isRoot && confirm('¿Eliminar "'+node.name+'" y sus hijos?')){ deleteKTNode(ktData, node.id); save('kt_nodes',ktData); renderKT(); }};
+  wrap.appendChild(div);
+  if(node.children && node.children.length > 0){
+    const ch = document.createElement('div');
+    ch.className = 'kt-children';
+    node.children.forEach(c=>ch.appendChild(renderKTNode(c, false)));
+    wrap.appendChild(ch);
+  }
+  return wrap;
+}
+function addKTNode(){
+  const name = $('kt-input').value.trim();
+  const parentId = parseInt($('kt-parent').value)||0;
+  if(!name) return;
+  const newNode = {id:ktNextId++, name, children:[]};
+  const parent = findKTNode(ktData, parentId === 0 ? ktData.id : parentId);
+  if(!parent) return;
+  if(!parent.children) parent.children = [];
+  parent.children.push(newNode);
+  save('kt_nodes', ktData);
+  $('kt-input').value='';
+  renderKT();
+}
+function findKTNode(node, id){ if(node.id===id) return node; for(const c of (node.children||[])){ const f=findKTNode(c,id); if(f) return f; } return null; }
+function deleteKTNode(node, id){ node.children = (node.children||[]).filter(c=>c.id!==id); node.children.forEach(c=>deleteKTNode(c,id)); }
+function resetKT(){ if(confirm('¿Reiniciar el árbol?')){ ktData={id:0,name:'Mi materia principal',children:[]}; save('kt_nodes',ktData); renderKT(); } }
+function updateKTSelect(){
+  const sel = $('kt-parent');
+  if(!sel) return;
+  const nodes = getAllKTNodes(ktData);
+  sel.innerHTML = nodes.map(n=>`<option value="${n.id}">${n.name}</option>`).join('');
+}
+function getAllKTNodes(node){ return [node, ...(node.children||[]).flatMap(c=>getAllKTNodes(c))]; }
+
+const IMPORTANCE_DATA = {
+  unam:    [{name:'Biología',pct:35,color:'#1A8C68'},{name:'Química',pct:25,color:'#6B63CC'},{name:'Física',pct:15,color:'#1855A0'},{name:'Matemáticas',pct:15,color:'#A85018'},{name:'Español',pct:10,color:'#A06510'}],
+  ciclo:   [{name:'Materia principal',pct:50,color:'#6B63CC'},{name:'Secundaria',pct:30,color:'#1855A0'},{name:'Complementaria',pct:20,color:'#1A8C68'}],
+  sabatical:[{name:'Conocimiento base',pct:40,color:'#1A8C68'},{name:'Técnicas de estudio',pct:30,color:'#6B63CC'},{name:'Práctica activa',pct:30,color:'#1855A0'}],
+  rapido:  [{name:'Lo que más pesa en el examen',pct:60,color:'#C84B28'},{name:'Fórmulas y datos clave',pct:25,color:'#A85018'},{name:'El resto',pct:15,color:'var(--muted)'}],
+};
+const IMPORTANCE_ADVICE = {
+  unam:'Biología es el área con mayor peso en el examen UNAM de Medicina. Prioriza genética, fisiología celular y metabolismo. Sin Biología sólida, el examen es muy difícil.',
+  ciclo:'Concentra el 80% del tiempo en la materia principal. No estudies todo por igual — el examen de ciclo es predecible si conoces el criterio del profesor.',
+  sabatical:'El año sabático es para construir base sólida. Prioriza entender, no memorizar. El conocimiento base que construyas aquí multiplica la velocidad de todo lo demás.',
+  rapido:'En repaso urgente: aprende solo lo de mayor peso. Acepta que no verás todo y sé estratégico con el tiempo que tienes.',
+};
+function updateImportance(){
+  const goal = $('goal-select')?.value || 'unam';
+  const data = IMPORTANCE_DATA[goal];
+  const el = $('importance-calc');
+  if(!el) return;
+  el.innerHTML = data.map(d=>`
+    <div class="ic-row">
+      <div class="ic-subject">${d.name}</div>
+      <div class="ic-bar-wrap"><div class="ic-bar" style="width:${d.pct}%;background:${d.color}"></div></div>
+      <div class="ic-pct" style="color:${d.color}">${d.pct}%</div>
+    </div>`).join('');
+  $('importance-advice').textContent = IMPORTANCE_ADVICE[goal];
+}
+
+/* ════════════════════
+   MÓDULO 8: ENERGÍA
+   ════════════════════ */
+function recalcEnergy(){
+  const wake = $('wake-time')?.value || '07:00';
+  const wakeH = parseInt(wake.split(':')[0]);
+  const sleepH = parseInt(($('sleep-time')?.value||'23:00').split(':')[0]);
+  const sleepHrs = parseFloat($('sleep-hours')?.value||7);
+  const ateFactor = parseFloat($('ate-well')?.value||1);
+
+  // Build energy curve for 24 hours
+  const curve = [];
+  for(let h=0;h<24;h++){
+    const hoursAwake = (h - wakeH + 24) % 24;
+    if(hoursAwake > (sleepH - wakeH + 24)%24){ curve.push(0.15); continue; }
+    // Circadian curve
+    let base = 0.3;
+    if(hoursAwake >=1 && hoursAwake <= 4) base = 0.85 + Math.sin((hoursAwake-1)/3*Math.PI)*0.1;
+    else if(hoursAwake > 4 && hoursAwake <= 6) base = 0.75;
+    else if(hoursAwake > 6 && hoursAwake <= 7) base = 0.5; // post-lunch dip
+    else if(hoursAwake > 7 && hoursAwake <= 10) base = 0.75;
+    else if(hoursAwake > 10 && hoursAwake <= 14) base = 0.5 - (hoursAwake-10)*0.04;
+    else base = 0.25;
+    // Sleep quality factor
+    const sleepFactor = Math.min(1, sleepHrs/8);
+    curve.push(Math.max(0.1, base * sleepFactor * ateFactor));
+  }
+
+  drawEnergyCanvas(curve, wakeH);
+  renderEnergyBlocks(curve, wakeH);
+  updateEnergyResult(curve, wakeH);
+}
+function drawEnergyCanvas(curve, wakeH){
+  const canvas = $('energy-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#161614';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid lines
+  ctx.strokeStyle = '#1f1f1d';
+  ctx.lineWidth = 1;
+  [0.25,0.5,0.75,1].forEach(y=>{
+    ctx.beginPath();
+    ctx.moveTo(0, H - y*H*0.85 - 10);
+    ctx.lineTo(W, H - y*H*0.85 - 10);
+    ctx.stroke();
+  });
+
+  // Fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(74,66,168,0.6)');
+  grad.addColorStop(1,'rgba(74,66,168,0.05)');
+  ctx.beginPath();
+  ctx.moveTo(0, H-10);
+  curve.forEach((v,i)=>{ ctx.lineTo(i/24*W, H - v*H*0.85 - 10); });
+  ctx.lineTo(W, H-10);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#6B63CC';
+  ctx.lineWidth = 2;
+  curve.forEach((v,i)=>{ i===0?ctx.moveTo(0,H-v*H*0.85-10):ctx.lineTo(i/24*W,H-v*H*0.85-10); });
+  ctx.stroke();
+
+  // Peak marker
+  const peak = curve.reduce((m,v,i)=>v>curve[m]?i:m,0);
+  const px = peak/24*W, py = H-curve[peak]*H*0.85-10;
+  ctx.beginPath();
+  ctx.arc(px,py,5,0,Math.PI*2);
+  ctx.fillStyle = '#c9a84c';
+  ctx.fill();
+
+  // Labels
+  const hlabels = $('energy-hours-labels');
+  if(hlabels) hlabels.innerHTML = [0,6,12,18,23].map(h=>`<span>${h}:00</span>`).join('');
+}
+function renderEnergyBlocks(curve, wakeH){
+  const el = $('energy-blocks');
+  if(!el) return;
+  el.innerHTML = '';
+  curve.forEach((v, h)=>{
+    const div = document.createElement('div');
+    div.className = 'eb';
+    let bg;
+    if(v >= 0.75) bg = '#4A42A8';
+    else if(v >= 0.5) bg = '#6B63CC88';
+    else if(v >= 0.3) bg = '#38383588';
+    else bg = '#C84B2844';
+    div.style.background = bg;
+    div.setAttribute('data-tip', h+':00 — '+(v>=0.75?'Pico':v>=0.5?'Buena':v>=0.3?'Normal':'Valle'));
+    el.appendChild(div);
+  });
+}
+function updateEnergyResult(curve, wakeH){
+  const el = $('energy-result');
+  if(!el) return;
+  const peak = curve.reduce((m,v,i)=>v>curve[m]?i:m,0);
+  const valley = curve.reduce((m,v,i)=>(i>=wakeH&&v<curve[m])?i:m,wakeH+5);
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><div class="er-label">MEJOR HORA PARA ESTUDIAR</div><div class="er-value" style="color:#4A42A8">${peak}:00 — ${peak+2}:00</div></div>
+      <div><div class="er-label">EVITAR ESTUDIO INTENSO</div><div class="er-value" style="color:#C84B28">${valley}:00 — ${valley+1}:00</div></div>
+    </div>`;
+}
+
+/* ════════════════════
+   MÓDULO 9: EVALUACIÓN
+   ════════════════════ */
+const EVAL_AREAS = ['Hábitos','Comprensión','Energía','Arranque','Técnicas','Entorno'];
+const EVAL_COLORS = ['#1A8C68','#6B63CC','#4A42A8','#C84B28','#1855A0','#A06510'];
+function renderEvalForm(){
+  const el = $('eval-form');
+  if(!el) return;
+  el.innerHTML = '';
+  EVAL_AREAS.forEach((area, i)=>{
+    const scores = STATE.evalScores || {};
+    const val = scores[area] || 5;
+    const row = document.createElement('div');
+    row.className = 'eval-row';
+    row.innerHTML = `<div class="eval-label">${area}</div><input class="eval-slider" type="range" min="1" max="10" value="${val}" id="eval-${i}" oninput="$('eval-val-${i}').textContent=this.value" style="accent-color:${EVAL_COLORS[i]}"/><div class="eval-val" id="eval-val-${i}" style="color:${EVAL_COLORS[i]}">${val}</div>`;
+    el.appendChild(row);
+  });
+}
+function runEval(){
+  const scores = {};
+  EVAL_AREAS.forEach((area, i)=>{ scores[area] = parseInt($('eval-'+i)?.value||5); });
+  STATE.evalScores = scores;
+  save('eval_scores', scores);
+  drawRadar(scores);
+  generateAdvice(scores);
+}
+function drawRadar(scores){
+  const canvas = $('radar-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2, R=Math.min(W,H)*0.38;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#161614'; ctx.fillRect(0,0,W,H);
+  const n = EVAL_AREAS.length;
+  const angles = EVAL_AREAS.map((_,i)=> -Math.PI/2 + i*2*Math.PI/n);
+
+  // Grid
+  [0.25,0.5,0.75,1].forEach(r=>{
+    ctx.beginPath();
+    angles.forEach((a,i)=>{ const x=cx+Math.cos(a)*R*r, y=cy+Math.sin(a)*R*r; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.closePath();
+    ctx.strokeStyle='#1f1f1d'; ctx.lineWidth=1; ctx.stroke();
+  });
+  angles.forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*R, cy+Math.sin(a)*R); ctx.strokeStyle='#1f1f1d'; ctx.stroke(); });
+
+  // Data
+  const vals = EVAL_AREAS.map(a=>(scores[a]||0)/10);
+  ctx.beginPath();
+  angles.forEach((a,i)=>{ const v=vals[i], x=cx+Math.cos(a)*R*v, y=cy+Math.sin(a)*R*v; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.closePath();
+  const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,R);
+  grad.addColorStop(0,'rgba(74,66,168,0.5)'); grad.addColorStop(1,'rgba(74,66,168,0.1)');
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.strokeStyle='#6B63CC'; ctx.lineWidth=2; ctx.stroke();
+
+  // Labels
+  ctx.font = '11px JetBrains Mono, monospace';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  angles.forEach((a,i)=>{
+    const x=cx+Math.cos(a)*(R+22), y=cy+Math.sin(a)*(R+18);
+    ctx.fillStyle=EVAL_COLORS[i];
+    ctx.fillText(EVAL_AREAS[i], x, y);
+  });
+}
+function generateAdvice(scores){
+  const sorted = Object.entries(scores).sort((a,b)=>a[1]-b[1]);
+  const weak = sorted[0], strong = sorted[sorted.length-1];
+  const avg = Object.values(scores).reduce((a,b)=>a+b,0)/EVAL_AREAS.length;
+  let semaforo, color, msg;
+  if(avg >= 7){ semaforo='🟢 Verde'; color='#1A8C68'; msg='Vas bien. Mantén el ritmo y sube el área más baja esta semana.'; }
+  else if(avg >= 4){ semaforo='🟡 Ámbar'; color='#A06510'; msg='Necesitas ajustes. Hay áreas que están jalando todo hacia abajo.'; }
+  else{ semaforo='🔴 Rojo'; color='#C84B28'; msg='El sistema no está funcionando. Regresa a Fase 1: rutina y arranque primero.'; }
+  $('advisor-msg').innerHTML = `<strong style="color:${color}">${semaforo} — Promedio: ${avg.toFixed(1)}/10</strong><br><br>${msg}<br><br><strong>Tu área más débil:</strong> ${weak[0]} (${weak[1]}/10) — Concentra aquí el ajuste de esta semana.<br><strong>Tu área más fuerte:</strong> ${strong[0]} (${strong[1]}/10) — Úsala como palanca para levantar las demás.`;
+}
+
+/* ════════════════════
+   INIT
+   ════════════════════ */
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderArranqueChecks();
+  renderNocheChecks();
+  renderRoutine();
+  renderSpots();
+  renderPeople();
+  renderEntornoChecks();
+  renderCalendar();
+  renderMenteChecks();
+  renderExercises();
+  renderTechniques();
+  renderKT();
+  updateImportance();
+  recalcEnergy();
+  renderEvalForm();
+  // Init radar blank
+  const canvas = $('radar-canvas');
+  if(canvas){ const ctx=canvas.getContext('2d'); ctx.fillStyle='#161614'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+  if(STATE.evalScores){ drawRadar(STATE.evalScores); generateAdvice(STATE.evalScores); }
+});
+</script>
+</body>
+</html>
