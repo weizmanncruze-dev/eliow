@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Soft Eliow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+:root{--bg:#000;--s1:#111;--s2:#1a1a1a;--s3:#252525;--border:#2a2a2a;--coral:#e8583a;--amber:#f0a500;--teal:#2dd4bf;--blue:#3b82f6;--purple:#a855f7;--pink:#ec4899;--green:#22c55e;--red:#ef4444;--text:#fff;--muted:#666;--muted2:#999}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100%;overflow:hidden}
+button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+input,select,textarea{font-family:'DM Sans',sans-serif}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(20px);z-index:50}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px}
+.logo span{color:var(--pink)}
+.top-date{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2)}
+.screens{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;display:none;padding:14px 14px 80px}
+.screen.active{display:block}
+.bottom-nav{display:flex;flex-shrink:0;background:rgba(0,0,0,0.97);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,4px);z-index:50}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;gap:3px;background:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.15s}
+.nav-btn.active{color:var(--pink)}
+.nav-icon{font-size:18px;line-height:1}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.sec-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.bebas{font-family:'Bebas Neue',sans-serif}
+.mono{font-family:'Space Mono',monospace}
+
+/* RUTINA */
+.routine-tabs{display:flex;gap:6px;margin-bottom:14px}
+.rtab{flex:1;padding:10px 6px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);transition:all 0.2s;text-align:center}
+.rtab.active{background:var(--pink);color:#000;border-color:var(--pink)}
+.step-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:all 0.2s}
+.step-card.done{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.3)}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:28px;color:var(--pink);line-height:1}
+.step-card.done .step-num{color:var(--green)}
+.step-info{flex:1}
+.step-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.step-why{font-size:11px;color:var(--muted2)}
+.step-tag{font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:50px;margin-top:4px;display:inline-block}
+.step-chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);transition:all 0.2s;flex-shrink:0}
+.step-chk.chk-done{background:var(--green);border-color:var(--green);color:#000}
+.progress-ring{width:80px;height:80px;position:relative;flex-shrink:0}
+.progress-ring svg{width:80px;height:80px;transform:rotate(-90deg)}
+.prog-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px}
+.night-toggle{display:flex;gap:8px;margin-bottom:12px}
+.ntog{flex:1;padding:10px;border-radius:10px;font-family:'Space Mono',monospace;font-size:10px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);text-align:center;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s}
+.ntog.active{background:rgba(168,85,247,0.15);color:var(--purple);border-color:rgba(168,85,247,0.3)}
+
+/* SPF CALCULATOR */
+.spf-table{width:100%;border-collapse:collapse;margin-top:12px}
+.spf-table th{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.spf-table td{padding:8px 8px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.spf-table tr:last-child td{border-bottom:none}
+.spf-badge{display:inline-block;padding:3px 10px;border-radius:50px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700}
+.spf-peak{background:rgba(239,68,68,0.2);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.spf-normal{background:rgba(240,165,0,0.15);color:var(--amber);border:1px solid rgba(240,165,0,0.25)}
+.spf-low{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+.spf-bar-cell{width:80px}
+.spf-mini-bar{height:6px;background:var(--s3);border-radius:50px;overflow:hidden}
+.spf-mini-fill{height:100%;border-radius:50px}
+
+/* CALENDARIO */
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.cal-nav{background:var(--s2);border:1px solid var(--border);color:var(--muted2);border-radius:8px;padding:6px 14px;font-size:16px}
+.cal-dn{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.cal-d{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-align:center;padding:4px 0;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--s2);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.cal-cell.today{border-color:var(--pink);color:var(--text);font-weight:700}
+.cal-cell.complete{background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.4);color:var(--green);font-weight:700}
+.cal-cell.partial{background:rgba(240,165,0,0.2);border-color:rgba(240,165,0,0.4);color:var(--amber)}
+.cal-cell.missed{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.25);color:var(--red)}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.cst{background:var(--s2);border-radius:10px;padding:10px;text-align:center}
+.cst-n{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1}
+.cst-l{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted2);text-transform:uppercase;margin-top:2px}
+
+/* INGENIO */
+.ing-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.ing-tabs::-webkit-scrollbar{display:none}
+.itab{padding:8px 14px;border-radius:50px;font-family:'Space Mono',monospace;font-size:10px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);transition:all 0.2s;white-space:nowrap;text-transform:uppercase;letter-spacing:1px}
+.itab.active{background:var(--blue);color:#000;border-color:var(--blue)}
+.iw{display:flex;flex-direction:column;gap:5px}
+.il{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.inp{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-size:15px;width:100%;outline:none;-webkit-appearance:none;transition:border-color 0.2s}
+.inp:focus{border-color:var(--pink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;border:none;transition:opacity 0.15s;cursor:pointer}
+.btn:active{opacity:0.85}
+.btn-p{background:var(--pink);color:#fff}
+.btn-b{background:var(--blue);color:#fff}
+.btn-block{width:100%}
+.btn-sm{padding:8px 13px;font-size:12px;border-radius:8px}
+.result-card{background:var(--s2);border-radius:12px;padding:14px;margin-top:12px}
+.eff-bar-wrap{margin-bottom:10px}
+.eff-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px}
+.eff-bar-val{font-family:'Bebas Neue',sans-serif;font-size:18px}
+.eff-track{height:7px;background:var(--s3);border-radius:50px;overflow:hidden}
+.eff-fill{height:100%;border-radius:50px;transition:width 0.8s}
+.score-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:50px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;margin-bottom:10px}
+.combo-result{padding:12px;border-radius:10px;margin-top:10px;font-size:13px;line-height:1.6}
+.idea-result{padding:14px;border-radius:10px;margin-top:10px;font-size:13px;line-height:1.7}
+
+/* PRINCIPIOS */
+.principle-card{display:flex;gap:14px;align-items:flex-start;background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px}
+.p-num{font-family:'Bebas Neue',sans-serif;font-size:24px;min-width:32px;line-height:1;margin-top:2px}
+.p-title{font-weight:600;font-size:14px;margin-bottom:3px}
+.p-desc{font-size:12px;color:var(--muted2);line-height:1.5}
+.p-zone{font-family:'Space Mono',monospace;font-size:9px;padding:3px 8px;border-radius:50px;margin-top:6px;display:inline-block}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:none;align-items:flex-end;z-index:400;backdrop-filter:blur(8px)}
+.modal-ov.show{display:flex}
+.modal-sheet{width:100%;background:var(--s1);border-radius:24px 24px 0 0;padding:22px 16px 40px;max-height:90vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:var(--s3);border-radius:50px;margin:0 auto 18px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:14px}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--pink);color:#000;padding:9px 22px;border-radius:50px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:transform 0.3s;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top-bar">
+  <div class="logo">SOFT <span>ELIOW</span></div>
+  <div class="top-date" id="topDate"></div>
+</div>
+<div class="screens">
+
+<!-- RUTINA -->
+<div id="sc-routine" class="screen active">
+  <div style="background:linear-gradient(135deg,#1a0a14,#000);border:1px solid #2a1525;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--pink);letter-spacing:2px;margin-bottom:4px">DRA. HOJYO TOMOKA</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;line-height:1.1;margin-bottom:4px">Rutina<br>Dermatológica</div>
+    <div style="font-size:12px;color:var(--muted2)">Protocolo médico personalizado</div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between">
+      <div>
+        <div style="font-weight:600;font-size:15px;margin-bottom:2px">Progreso de hoy</div>
+        <div style="font-size:12px;color:var(--muted2)" id="progressLabel">0 de 0 pasos</div>
+      </div>
+      <div class="progress-ring">
+        <svg viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--s3)" stroke-width="5"/>
+          <circle id="progArc" cx="40" cy="40" r="34" fill="none" stroke="var(--pink)" stroke-width="5" stroke-dasharray="214" stroke-dashoffset="214" stroke-linecap="round"/>
+        </svg>
+        <div class="prog-num" id="progPct" style="color:var(--pink)">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="routine-tabs">
+    <button class="rtab active" onclick="setTab('morning',this)">🌅 Mañana</button>
+    <button class="rtab" onclick="setTab('afternoon',this)">☀️ Tarde</button>
+    <button class="rtab" onclick="setTab('night',this)">🌙 Noche</button>
+  </div>
+
+  <!-- Night toggle -->
+  <div class="night-toggle" id="nightToggle" style="display:none">
+    <button class="ntog active" id="ntA" onclick="setNight('A')">Noche A — BPollen</button>
+    <button class="ntog" id="ntB" onclick="setNight('B')">Noche B — Retream</button>
+  </div>
+
+  <div id="stepsContainer"></div>
+
+  <!-- SPF Calculator (only afternoon) -->
+  <div id="spfCalc" style="display:none">
+    <div class="sec-lbl">Calculadora de reaplicación SPF</div>
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px">¿A qué hora te pusiste el bloqueador?</div>
+      <div class="grid2" style="margin-bottom:12px">
+        <div class="iw">
+          <label class="il">Primera aplicación</label>
+          <input type="time" class="inp" id="spfFirst" value="07:00" onchange="calcSPF()">
+        </div>
+        <div class="iw">
+          <label class="il">¿Estarás al sol?</label>
+          <select class="inp" id="spfExposure" onchange="calcSPF()">
+            <option value="low">Poco (interior)</option>
+            <option value="medium" selected>Moderado</option>
+            <option value="high">Mucho (exterior)</option>
+          </select>
+        </div>
+      </div>
+      <div id="spfResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDARIO -->
+<div id="sc-cal" class="screen">
+  <div class="card">
+    <div class="cal-hdr">
+      <button class="cal-nav" onclick="chgMo(-1)">&#8249;</button>
+      <div class="cal-month" id="moName"></div>
+      <button class="cal-nav" onclick="chgMo(1)">&#8250;</button>
+    </div>
+    <div class="cal-dn">
+      <div class="cal-d">D</div><div class="cal-d">L</div><div class="cal-d">M</div>
+      <div class="cal-d">X</div><div class="cal-d">J</div><div class="cal-d">V</div><div class="cal-d">S</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(34,197,94,0.3);border:1px solid rgba(34,197,94,0.5)"></div>Completa</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(240,165,0,0.3);border:1px solid rgba(240,165,0,0.5)"></div>Parcial</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4)"></div>Perdida</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+      <button class="btn btn-p btn-block btn-sm" onclick="markToday('complete')">✓ Completa</button>
+      <button class="btn btn-block btn-sm" style="background:rgba(240,165,0,0.15);color:var(--amber);border:1px solid rgba(240,165,0,0.3)" onclick="markToday('partial')">◑ Parcial</button>
+    </div>
+    <div class="cal-stats">
+      <div class="cst"><div class="cst-n" id="csC" style="color:var(--green)">0</div><div class="cst-l">completas</div></div>
+      <div class="cst"><div class="cst-n" id="csP" style="color:var(--amber)">0</div><div class="cst-l">parciales</div></div>
+      <div class="cst"><div class="cst-n" id="csS" style="color:var(--pink)">0</div><div class="cst-l">racha</div></div>
+    </div>
+  </div>
+  <div class="sec-lbl">Adherencia del mes</div>
+  <div class="card" id="adherenceStats"></div>
+</div>
+
+<!-- INGENIO -->
+<div id="sc-ingenio" class="screen">
+  <div style="background:linear-gradient(135deg,#0a0d1a,#000);border:1px solid #151a2a;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;margin-bottom:4px">PRINCIPIO 6</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;line-height:1.1;margin-bottom:4px">El Ingenio</div>
+    <div style="font-size:12px;color:var(--muted2)">Analiza, combina y crea como Anton Closmain</div>
+  </div>
+  <div class="ing-tabs">
+    <button class="itab active" onclick="setIngTab('analyze',this)">Analizar</button>
+    <button class="itab" onclick="setIngTab('combo',this)">Combinar</button>
+    <button class="itab" onclick="setIngTab('create',this)">Crear idea</button>
+  </div>
+
+  <div id="ing-analyze">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px">¿Me sirve este producto?</div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div class="iw"><label class="il">Producto</label><input type="text" class="inp" id="anProd" placeholder="ej. Retinol"></div>
+        <div class="iw"><label class="il">Objetivo</label>
+          <select class="inp" id="anGoal">
+            <option value="acne">Acné</option>
+            <option value="spots">Manchas</option>
+            <option value="texture">Textura</option>
+            <option value="glow">Luminosidad</option>
+            <option value="sculpt">Moldear</option>
+            <option value="anti">Anti-edad</option>
+            <option value="hydration">Hidratación</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-b btn-block" onclick="analyzeProduct()">Analizar →</button>
+      <div id="analyzeResult"></div>
+    </div>
+  </div>
+
+  <div id="ing-combo" style="display:none">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px">¿Puedo combinar estos dos?</div>
+      <div class="iw" style="margin-bottom:10px"><label class="il">Producto A</label><input type="text" class="inp" id="comboA" placeholder="ej. Niacinamida"></div>
+      <div class="iw" style="margin-bottom:10px"><label class="il">Producto B</label><input type="text" class="inp" id="comboB" placeholder="ej. Vitamina C"></div>
+      <button class="btn btn-b btn-block" onclick="checkCombo()">Verificar →</button>
+      <div id="comboResult"></div>
+    </div>
+  </div>
+
+  <div id="ing-create" style="display:none">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px">Generador de ideas como Anton</div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div class="iw"><label class="il">Zona</label>
+          <select class="inp" id="ideaZone">
+            <option value="face">Cara</option><option value="body">Cuerpo</option>
+            <option value="eyes">Ojos</option><option value="jaw">Mandíbula</option>
+            <option value="lips">Labios</option><option value="hair">Cabello</option>
+          </select>
+        </div>
+        <div class="iw"><label class="il">Tipo</label>
+          <select class="inp" id="ideaType">
+            <option value="casero">Casero</option><option value="tech">Tecnológico</option>
+            <option value="food">Alimenticio</option><option value="massage">Masaje</option>
+            <option value="mix">Mezcla</option>
+          </select>
+        </div>
+      </div>
+      <div class="iw" style="margin-bottom:10px"><label class="il">Objetivo</label>
+        <select class="inp" id="ideaGoal">
+          <option value="glow">Glow</option><option value="sculpt">Moldear</option>
+          <option value="reduce">Desinflamar</option><option value="spots">Manchas</option>
+          <option value="texture">Textura</option><option value="grow">Crecimiento</option>
+        </select>
+      </div>
+      <button class="btn btn-b btn-block" onclick="generateIdea()">Generar idea →</button>
+      <div id="ideaResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINCIPIOS -->
+<div id="sc-principles" class="screen">
+  <div style="background:linear-gradient(135deg,#1a0a14,#000);border:1px solid #2a1525;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--pink);letter-spacing:2px;margin-bottom:6px">SISTEMA ELOICOW</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;line-height:1;margin-bottom:4px">SOFT<br>ELIOW</div>
+    <div style="font-size:12px;color:var(--muted2)">Referencia: Anton Closmain · Construido por Elio</div>
+    <div style="font-style:italic;font-size:13px;color:var(--text);margin-top:10px;line-height:1.5">"No me cuido para que me vean.<br>Me cuido porque soy el artista y soy la obra."</div>
+  </div>
+  <div id="principlesList"></div>
+</div>
+
+</div>
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="goScreen('routine',0)"><span class="nav-icon">🧴</span>Rutina</button>
+  <button class="nav-btn" onclick="goScreen('cal',1)"><span class="nav-icon">📅</span>Progreso</button>
+  <button class="nav-btn" onclick="goScreen('ingenio',2)"><span class="nav-icon">⚗️</span>Ingenio</button>
+  <button class="nav-btn" onclick="goScreen('principles',3)"><span class="nav-icon">✨</span>Soft</button>
+</nav>
+</div>
+
+<div class="modal-ov" id="addStepModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Añadir paso</div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="iw"><label class="il">Producto</label><input type="text" class="inp" id="nsName" placeholder="Nombre"></div>
+      <div class="iw"><label class="il">Hora</label><input type="text" class="inp" id="nsTime" placeholder="7am"></div>
+    </div>
+    <div class="iw" style="margin-bottom:10px"><label class="il">Para qué sirve</label><input type="text" class="inp" id="nsWhy" placeholder="Objetivo"></div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="iw"><label class="il">Momento</label>
+        <select class="inp" id="nsMoment">
+          <option value="morning">Mañana</option><option value="afternoon">Tarde</option>
+          <option value="night">Noche A y B</option><option value="nightA">Solo Noche A</option>
+          <option value="nightB">Solo Noche B</option>
+        </select>
+      </div>
+      <div class="iw"><label class="il">Zona</label>
+        <select class="inp" id="nsZone">
+          <option value="face">Cara</option><option value="body">Cuerpo</option><option value="both">Ambos</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <button class="btn" style="background:var(--s3);color:var(--text)" onclick="closeAddStep()">Cancelar</button>
+      <button class="btn btn-p" onclick="saveStep()">Guardar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ STEPS DATA ═══
+const STEPS = {
+  morning:[
+    {id:'m1',name:'Vastionin 20mg (Isotretinoína)',why:'Tratamiento oral anti-acné — tomar con alimentos',tag:'💊 Oral',tagColor:'rgba(168,85,247,0.15)',tagTextColor:'var(--purple)'},
+    {id:'m2',name:'Effaclar La Roche-Posay',why:'Limpiador purificante — eliminar impurezas y sebo',tag:'🧼 Limpiador',tagColor:'rgba(45,212,191,0.12)',tagTextColor:'var(--teal)'},
+    {id:'m3',name:'Anthelios UVAir SPF 50+',why:'Protección solar con niacinamida — aplicar generosamente',tag:'☀️ SPF 50+',tagColor:'rgba(240,165,0,0.15)',tagTextColor:'var(--amber)'},
+    {id:'m4',name:'Vastionin bálsamo labial',why:'Hidratación labial — la isotretinoína reseca los labios',tag:'💋 Labios',tagColor:'rgba(236,72,153,0.15)',tagTextColor:'var(--pink)'},
+  ],
+  afternoon:[
+    {id:'a1',name:'Reaplicar Anthelios UVAir SPF 50+',why:'Reaplicar cada 2h de exposición solar — mantener protección activa',tag:'☀️ SPF 50+',tagColor:'rgba(240,165,0,0.15)',tagTextColor:'var(--amber)'},
+    {id:'a2',name:'Vastionin bálsamo labial',why:'Reaplicar hidratación labial durante el día',tag:'💋 Labios',tagColor:'rgba(236,72,153,0.15)',tagTextColor:'var(--pink)'},
+  ],
+  nightA:[
+    {id:'na1',name:'Effaclar La Roche-Posay',why:'Limpieza profunda — remover contaminantes del día',tag:'🧼 Limpiador',tagColor:'rgba(45,212,191,0.12)',tagTextColor:'var(--teal)'},
+    {id:'na2',name:'BPollen Duo (Clindamicina + Peróxido de Benzoílo 1%/5%)',why:'Antibiótico tópico + peróxido — atacar bacteria del acné directamente',tag:'⚕️ Prescripción',tagColor:'rgba(59,130,246,0.15)',tagTextColor:'var(--blue)'},
+    {id:'na3',name:'Vastionin bálsamo labial',why:'Hidratación labial nocturna',tag:'💋 Labios',tagColor:'rgba(236,72,153,0.15)',tagTextColor:'var(--pink)'},
+  ],
+  nightB:[
+    {id:'nb1',name:'Effaclar La Roche-Posay',why:'Limpieza profunda — remover contaminantes del día',tag:'🧼 Limpiador',tagColor:'rgba(45,212,191,0.12)',tagTextColor:'var(--teal)'},
+    {id:'nb2',name:'Retream 05 (Ácido retinoico 0.05%)',why:'Renovación celular y anti-acné — aplicar capa delgada evitando ojos',tag:'⚕️ Prescripción',tagColor:'rgba(168,85,247,0.15)',tagTextColor:'var(--purple)'},
+    {id:'nb3',name:'Vastionin bálsamo labial',why:'Hidratación labial nocturna',tag:'💋 Labios',tagColor:'rgba(236,72,153,0.15)',tagTextColor:'var(--pink)'},
+  ],
+};
+
+const PRODUCT_DB={
+  'retinol':{acne:80,spots:85,texture:90,glow:75,sculpt:30,anti:95,hydration:20,timing:'night',note:'El más estudiado para renovación celular.',risk:'Irritación si se usa seguido.'},
+  'niacinamida':{acne:85,spots:80,texture:78,glow:82,sculpt:20,anti:60,hydration:70,timing:'both',note:'El más versátil. Reduce poros y regula sebo.',risk:'Muy segura.'},
+  'vitamina c':{acne:60,spots:90,texture:65,glow:95,sculpt:20,anti:85,hydration:40,timing:'morning',note:'Ilumina y unifica el tono.',risk:'Se oxida rápido.'},
+  'acido glicolico':{acne:82,spots:88,texture:92,glow:80,sculpt:15,anti:75,hydration:20,timing:'night',note:'Exfoliante químico. Renueva la textura.',risk:'No con retinol misma noche.'},
+  'acido salicilico':{acne:95,spots:60,texture:85,glow:65,sculpt:10,anti:50,hydration:10,timing:'night',note:'El mejor para acné. Penetra el poro.',risk:'Puede resecar.'},
+  'spf':{acne:20,spots:95,texture:30,glow:40,sculpt:10,anti:98,hydration:30,timing:'morning',note:'El anti-envejecimiento más importante.',risk:'Sin riesgo.'},
+  'guasha':{acne:40,spots:50,texture:60,glow:75,sculpt:95,anti:70,hydration:20,timing:'night',note:'Moldea, drena y define.',risk:'No en acné inflamado.'},
+  'darsonval':{acne:90,spots:60,texture:70,glow:65,sculpt:50,anti:65,hydration:10,timing:'night',note:'Alta frecuencia. Mata bacterias del acné.',risk:'No en acné muy inflamado.'},
+  'bpollen':{acne:92,spots:40,texture:60,glow:30,sculpt:10,anti:40,hydration:10,timing:'night',note:'Clindamicina + peróxido. Antibiótico + oxidante. Protocolo Dra. Tomoka.',risk:'No combinar con retinoides misma noche.'},
+  'retream':{acne:88,spots:82,texture:88,glow:70,sculpt:15,anti:90,hydration:15,timing:'night',note:'Ácido retinoico prescripción. Renovación celular potente.',risk:'Alternar noches con BPollen. No usar diario.'},
+  'isotretinoina':{acne:98,spots:70,texture:85,glow:60,sculpt:5,anti:75,hydration:5,timing:'morning',note:'El tratamiento más efectivo para acné severo. Oral.',risk:'Solo bajo supervisión médica. Isotretinoína sistémica.'},
+};
+
+const COMBOS={
+  'bpollen+retream':{ok:false,note:'No la misma noche. Alternar: BPollen una noche, Retream la siguiente. Es tu protocolo actual.',eff:15},
+  'retream+bpollen':{ok:false,note:'No la misma noche. Alternar: BPollen una noche, Retream la siguiente.',eff:15},
+  'niacinamida+vitamina c':{ok:true,note:'Compatible. Aplica vitamina C primero, espera y luego niacinamida.',eff:75},
+  'niacinamida+retinol':{ok:true,note:'Excelente. La niacinamida reduce la irritación del retinol.',eff:92},
+  'spf+vitamina c':{ok:true,note:'Combinación perfecta AM. La vitamina C potencia la protección solar.',eff:98},
+  'isotretinoina+spf':{ok:true,note:'Obligatorio. La isotretinoína sensibiliza al sol. SPF es esencial.',eff:99},
+  'guasha+retream':{ok:false,note:'No hacer guasha después de aplicar Retream — puede irritar.',eff:10},
+  'darsonval+niacinamida':{ok:true,note:'Buena combo para acné. Darsonval activo + niacinamida calmante.',eff:88},
+};
+
+const IDEAS={
+  face:{casero:{glow:'Mascarilla de miel cruda + cúrcuma 10 min. Antioxidante e iluminadora. ¿Potencia? 78%',sculpt:'Cubos de hielo en paño: masajear en mandíbula y pómulos 3 min. Define y drena. ¿Potencia? 82%',reduce:'Compresas de té verde frío 5 min. Antiinflamatorio natural. ¿Potencia? 75%',spots:'Aloe vera puro como mascarilla nocturna. Reparador y calmante. ¿Potencia? 72%'},tech:{glow:'Darsonval + vitamina C sérum antes. Iontoforesis casera. ¿Potencia? 88%',sculpt:'Ice roller + guasha en secuencia. Primero frío, luego moldear. ¿Potencia? 91%',reduce:'Darsonval modo suave + niacinamida. Alta frecuencia + calmante. ¿Potencia? 85%'},food:{glow:'Gummies de naranja + jengibre + gelatina como Anton. Vitamina C interna. ¿Potencia? 80%',reduce:'Té de cúrcuma + pimienta negra en ayunas. Antiinflamatorio sistémico. ¿Potencia? 68%',spots:'Skincare breakfast: salmón + zanahoria + huevo. Omega 3 + betacaroteno. ¿Potencia? 85%'},massage:{sculpt:'Guasha en mandíbula con aceite de rosa mosqueta 5 min circulares. ¿Potencia? 90%',reduce:'Drenaje linfático facial: desde centro hacia orejas. 3 min AM. ¿Potencia? 78%'}},
+  body:{casero:{spots:'Ácido glicólico 10% + aloe vera para manchas corporales. 5 min, enjuagar. ¿Potencia? 82%',glow:'Exfoliante: azúcar morena + aceite de coco + limón. Circular en ducha. ¿Potencia? 75%'},tech:{spots:'Retinal mezclado con body lotion. Renovación celular corporal. ¿Potencia? 88%',texture:'Guasha corporal con aceite. Activa circulación y suaviza. ¿Potencia? 80%'}},
+  jaw:{massage:{sculpt:'Guasha en mandíbula hacia arriba y afuera 5 min. Define el ángulo. ¿Potencia? 92%',reduce:'Masaje en maseteros. Reduce tensión y define. ¿Potencia? 85%'},tech:{sculpt:'Ice roller en mandíbula + guasha. Protocolo de definición. ¿Potencia? 94%'}},
+  eyes:{massage:{grow:'Masaje en cejas con aceite de ricino noche. Activa folículos. ¿Potencia? 80%',sculpt:'Cubo de hielo bajo ojos 30 seg AM. Elimina puffiness. ¿Potencia? 88%'}},
+  lips:{casero:{texture:'Exfoliante: azúcar + miel + aceite de coco en labios 1 min. ¿Potencia? 82%',glow:'Aceite de ricino en labios cada noche. Hidrata y da volumen natural. ¿Potencia? 75%'}},
+  hair:{casero:{grow:'Masaje capilar con aceite de ricino + aceite de menta antes de lavar. ¿Potencia? 78%',texture:'Máscara de huevo + aceite de coco 20 min. Proteína + hidratación. ¿Potencia? 72%'}},
+};
+
+const PRINCIPLES=[
+  {n:'1',t:'Búsqueda de la belleza',d:'La belleza no es un destino, es una búsqueda permanente. Siempre hay más por descubrir, experimentar, explorar.',c:'#2dd4bf'},
+  {n:'2',t:'Entregado',d:'Total compromiso con el proceso. Sin medias tintas, sin excusas, sin "mañana lo hago".',c:'#e8583a'},
+  {n:'3',t:'La belleza como forma de arte',d:'Tu cuidado no sigue instrucciones — crea. Cada ritual es una decisión artística.',c:'#a855f7'},
+  {n:'4',t:'Ver tu belleza como arte',d:'Tú eres la obra. El rostro, el cuerpo, cada rasgo — materia viva que se trabaja y se esculpe.',c:'#f0a500'},
+  {n:'5',t:'La actitud soft como poder',d:'Hacerlo sin explicarse. Sin pedir permiso. Con esa seguridad relajada que solo tienen los realmente seguros.',c:'#ec4899'},
+  {n:'6',t:'El ingenio',d:'Combinar lo que nadie combinaría. Sin límites de fuente — casero, médico, alimenticio, tecnológico. Retinal + body lotion. Gummies de vitamina C. Darsonval en casa.',c:'#3b82f6'},
+];
+
+// ═══ STATE ═══
+let seData=JSON.parse(localStorage.getItem('se_v2')||'null')||{days:{},checked:{}};
+let currentTab='morning';
+let currentNight='A';
+let calOff=0;
+
+function save(){localStorage.setItem('se_v2',JSON.stringify(seData));}
+function today(){return new Date().toISOString().split('T')[0];}
+
+function goScreen(id,i){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sc-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn')[i].classList.add('active');
+  if(id==='cal')renderCal();
+}
+
+function setTab(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('nightToggle').style.display=tab==='night'?'flex':'none';
+  document.getElementById('spfCalc').style.display=tab==='afternoon'?'block':'none';
+  renderSteps();
+  if(tab==='afternoon')calcSPF();
+}
+
+function setNight(n){
+  currentNight=n;
+  document.getElementById('ntA').classList.toggle('active',n==='A');
+  document.getElementById('ntB').classList.toggle('active',n==='B');
+  renderSteps();
+}
+
+function getSteps(){
+  if(currentTab==='morning')return STEPS.morning;
+  if(currentTab==='afternoon')return STEPS.afternoon;
+  return currentNight==='A'?STEPS.nightA:STEPS.nightB;
+}
+
+function renderSteps(){
+  const steps=getSteps();
+  const todayKey=today();
+  if(!seData.checked[todayKey])seData.checked[todayKey]={};
+  document.getElementById('stepsContainer').innerHTML=steps.map((s,i)=>{
+    const done=seData.checked[todayKey][s.id]||false;
+    return`<div class="step-card ${done?'done':''}" id="sc_${s.id}">
+      <div class="step-num" id="sn_${s.id}">${i+1}</div>
+      <div class="step-info">
+        <div class="step-name">${s.name}</div>
+        <div class="step-why">${s.why}</div>
+        <span class="step-tag" style="background:${s.tagColor};color:${s.tagTextColor}">${s.tag}</span>
+      </div>
+      <button class="step-chk ${done?'chk-done':''}" id="chk_${s.id}" onclick="toggleStep('${s.id}')">${done?'✓':''}</button>
+    </div>`;
+  }).join('');
+  updateProgress();
+}
+
+function toggleStep(id){
+  const todayKey=today();
+  if(!seData.checked[todayKey])seData.checked[todayKey]={};
+  seData.checked[todayKey][id]=!seData.checked[todayKey][id];
+  save();
+  const done=seData.checked[todayKey][id];
+  const card=document.getElementById('sc_'+id);
+  const chk=document.getElementById('chk_'+id);
+  if(card)card.classList.toggle('done',done);
+  if(chk){chk.classList.toggle('chk-done',done);chk.textContent=done?'✓':'';}
+  updateProgress();
+}
+
+function updateProgress(){
+  const todayKey=today();
+  const allSteps=[...STEPS.morning,...STEPS.afternoon,...STEPS.nightA,...STEPS.nightB];
+  const total=allSteps.length;
+  const done=Object.values(seData.checked[todayKey]||{}).filter(Boolean).length;
+  const pct=total>0?Math.round((done/total)*100):0;
+  document.getElementById('progressLabel').textContent=`${done} de ${total} pasos`;
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progArc').style.strokeDashoffset=214*(1-pct/100);
+  const col=pct>=80?'var(--green)':pct>=40?'var(--amber)':'var(--pink)';
+  document.getElementById('progArc').style.stroke=col;
+  document.getElementById('progPct').style.color=col;
+}
+
+// ═══ SPF CALCULATOR ═══
+function calcSPF(){
+  const firstStr=document.getElementById('spfFirst').value||'07:00';
+  const exposure=document.getElementById('spfExposure').value;
+  const[h,m]=firstStr.split(':').map(Number);
+  const firstMin=h*60+m;
+  const interval=exposure==='high'?90:exposure==='medium'?120:180;
+  const uvPeak={7:20,8:35,9:55,10:75,11:90,12:98,13:100,14:98,15:90,16:75,17:55,18:35,19:20,20:10};
+  const slots=[];
+  for(let i=0;i<6;i++){
+    const applyMin=firstMin+i*interval;
+    if(applyMin>20*60)break;
+    const applyH=Math.floor(applyMin/60);
+    const applyM=applyMin%60;
+    const uv=uvPeak[applyH]||5;
+    const isFirst=i===0;
+    const level=uv>=80?'peak':uv>=50?'normal':'low';
+    slots.push({time:`${String(applyH).padStart(2,'0')}:${String(applyM).padStart(2,'0')}`,uv,level,isFirst});
+  }
+  const r=document.getElementById('spfResult');
+  r.innerHTML=`
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;font-family:'Space Mono',monospace">
+      Reaplicar cada <strong style="color:var(--amber)">${interval} min</strong> de exposición real
+    </div>
+    <table class="spf-table">
+      <thead><tr>
+        <th>Hora</th>
+        <th>UV</th>
+        <th>Intensidad</th>
+        <th>Nivel</th>
+      </tr></thead>
+      <tbody>
+        ${slots.map(s=>`<tr>
+          <td><strong style="color:${s.isFirst?'var(--pink)':'var(--text)'}">${s.time}${s.isFirst?' ★':''}</strong></td>
+          <td>
+            <div class="spf-mini-bar" style="width:60px">
+              <div class="spf-mini-fill" style="width:${s.uv}%;background:${s.uv>=80?'var(--red)':s.uv>=50?'var(--amber)':'var(--green)'}"></div>
+            </div>
+          </td>
+          <td><span style="font-size:12px;color:${s.uv>=80?'var(--red)':s.uv>=50?'var(--amber)':'var(--green)'}">${s.uv}%</span></td>
+          <td><span class="spf-badge ${s.level==='peak'?'spf-peak':s.level==='normal'?'spf-normal':'spf-low'}">${s.level==='peak'?'PICO':s.level==='normal'?'MEDIO':'BAJO'}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.5;padding:10px;background:var(--s3);border-radius:8px">
+      💡 La isotretinoína aumenta la sensibilidad solar. Nunca salir sin SPF 50+. En pico UV reaplicar sí o sí.
+    </div>`;
+}
+
+// ═══ CALENDARIO ═══
+function chgMo(d){calOff+=d;renderCal();}
+function markToday(type){
+  seData.days[today()]=type;save();renderCal();
+  showToast(type==='complete'?'✓ Rutina completa':'◑ Rutina parcial marcada');
+}
+function renderCal(){
+  const now=new Date(),y=now.getFullYear(),mo=now.getMonth()+calOff;
+  const date=new Date(y,mo,1);
+  document.getElementById('moName').textContent=date.toLocaleDateString('es-MX',{month:'long',year:'numeric'}).toUpperCase();
+  const first=new Date(date.getFullYear(),date.getMonth(),1).getDay();
+  const dim=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+  const todayStr=today();let html='',comp=0,part=0;
+  for(let i=0;i<first;i++)html+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const st=seData.days[ds];
+    if(st==='complete')comp++;if(st==='partial')part++;
+    html+=`<div class="cal-cell ${st||''} ${ds===todayStr?'today':''}">${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+  document.getElementById('csC').textContent=comp;
+  document.getElementById('csP').textContent=part;
+  document.getElementById('csS').textContent=getStreak();
+  renderAdherence(comp,part);
+}
+function getStreak(){
+  let s=0;const d=new Date();
+  while(true){const k=d.toISOString().split('T')[0];if(seData.days[k]==='complete'){s++;d.setDate(d.getDate()-1);}else break;}
+  return s;
+}
+function renderAdherence(comp,part){
+  const total=comp+part;
+  if(!total){document.getElementById('adherenceStats').innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Sin datos aún.</div>';return;}
+  const day=new Date().getDate();
+  const pct1=Math.round(comp/Math.max(total,1)*100);
+  const pct2=Math.min(Math.round(total/day*100),100);
+  document.getElementById('adherenceStats').innerHTML=[
+    {l:'Rutinas completas vs parciales',v:pct1,c:'var(--green)'},
+    {l:'Consistencia este mes',v:pct2,c:'var(--pink)'},
+  ].map(b=>`<div class="eff-bar-wrap">
+    <div class="eff-bar-top"><span style="font-size:13px">${b.l}</span><span class="eff-bar-val" style="color:${b.c}">${b.v}%</span></div>
+    <div class="eff-track"><div class="eff-fill" style="width:${b.v}%;background:${b.c}"></div></div>
+  </div>`).join('');
+}
+
+// ═══ INGENIO ═══
+function setIngTab(id,btn){
+  ['ing-analyze','ing-combo','ing-create'].forEach(t=>document.getElementById(t).style.display='none');
+  document.querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ing-'+id).style.display='block';
+  btn.classList.add('active');
+}
+function analyzeProduct(){
+  const name=document.getElementById('anProd').value.trim().toLowerCase();
+  const goal=document.getElementById('anGoal').value;
+  const r=document.getElementById('analyzeResult');
+  let data=PRODUCT_DB[name];
+  if(!data){for(const k of Object.keys(PRODUCT_DB)){if(name.includes(k)||k.includes(name.split(' ')[0])){data=PRODUCT_DB[k];break;}}}
+  if(!data){r.innerHTML=`<div class="result-card"><div style="text-align:center;padding:10px;color:var(--muted);font-size:13px">No encontrado. Intenta: bpollen, retream, isotretinoina, niacinamida, vitamina c, spf, guasha, darsonval</div></div>`;return;}
+  const score=data[goal]||50;
+  const col=score>=80?'var(--green)':score>=60?'var(--amber)':'var(--red)';
+  const verdict=score>=80?'✅ Muy recomendado':score>=60?'⚠️ Útil con condiciones':'❌ Poco efectivo';
+  const metrics=[
+    {n:'Para tu objetivo',v:score,c:col},
+    {n:'Acné',v:data.acne,c:'#e8583a'},{n:'Manchas',v:data.spots,c:'#f0a500'},
+    {n:'Textura',v:data.texture,c:'#a855f7'},{n:'Luminosidad',v:data.glow,c:'#2dd4bf'},
+    {n:'Anti-edad',v:data.anti,c:'#22c55e'},
+  ];
+  r.innerHTML=`<div class="result-card">
+    <div class="score-badge" style="background:${score>=80?'rgba(34,197,94,0.15)':score>=60?'rgba(240,165,0,0.15)':'rgba(239,68,68,0.15)'};color:${col}">${verdict}</div>
+    ${metrics.map(m=>`<div class="eff-bar-wrap">
+      <div class="eff-bar-top"><span style="font-size:12px">${m.n}</span><span class="eff-bar-val" style="color:${m.c};font-size:16px">${m.v}%</span></div>
+      <div class="eff-track"><div class="eff-fill" style="width:${m.v}%;background:${m.c}"></div></div>
+    </div>`).join('')}
+    <div style="font-size:12px;color:var(--muted2);margin-top:10px;line-height:1.6;padding:10px;background:var(--s3);border-radius:8px">${data.note}</div>
+    <div style="font-size:12px;color:var(--amber);margin-top:8px;line-height:1.6;padding:10px;background:rgba(240,165,0,0.08);border-radius:8px"><strong style="display:block;margin-bottom:4px">⚠️</strong>${data.risk}</div>
+  </div>`;
+}
+function checkCombo(){
+  const a=document.getElementById('comboA').value.trim().toLowerCase();
+  const b=document.getElementById('comboB').value.trim().toLowerCase();
+  const r=document.getElementById('comboResult');
+  if(!a||!b){showToast('Escribe ambos productos');return;}
+  let result=COMBOS[`${a}+${b}`]||COMBOS[`${b}+${a}`];
+  if(!result){r.innerHTML=`<div class="combo-result" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3)"><strong style="color:var(--blue)">ℹ️ No en base de datos</strong><br><br>Regla: no mezcles dos activos fuertes en la misma noche.</div>`;return;}
+  const col=result.ok?'var(--green)':'var(--red)';
+  r.innerHTML=`<div class="combo-result" style="background:${result.ok?'rgba(34,197,94,0.1)':'rgba(239,68,68,0.1)'};border:1px solid ${result.ok?'rgba(34,197,94,0.3)':'rgba(239,68,68,0.3)'}">
+    <strong style="color:${col}">${result.ok?'✅ Compatible':'❌ No recomendado juntos'}</strong>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${col};margin:6px 0">${result.eff}%</div>
+    <div class="eff-track" style="margin-bottom:10px"><div class="eff-fill" style="width:${result.eff}%;background:${col}"></div></div>
+    ${result.note}
+  </div>`;
+}
+function generateIdea(){
+  const zone=document.getElementById('ideaZone').value;
+  const type=document.getElementById('ideaType').value;
+  const goal=document.getElementById('ideaGoal').value;
+  const idea=IDEAS[zone]?.[type]?.[goal];
+  const r=document.getElementById('ideaResult');
+  r.innerHTML=idea
+    ?`<div class="idea-result" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3)"><strong style="color:var(--blue);display:block;margin-bottom:8px">💡 Idea Soft Eliow</strong>${idea}</div>`
+    :`<div class="idea-result" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3)"><strong style="color:var(--blue)">💡 Idea personalizada</strong><br><br>Investiga en TikTok siguiendo a Anton Closmain para esta combinación. El ingenio Eliow no tiene límites.</div>`;
+}
+
+// ═══ PRINCIPIOS ═══
+function renderPrinciples(){
+  document.getElementById('principlesList').innerHTML=PRINCIPLES.map(p=>`
+    <div class="principle-card">
+      <div class="p-num" style="color:${p.c}">${p.n}</div>
+      <div><div class="p-title">${p.t}</div><div class="p-desc">${p.d}</div></div>
+    </div>`).join('');
+}
+
+function closeAddStep(){document.getElementById('addStepModal').classList.remove('show');}
+function saveStep(){showToast('Función disponible en próxima versión');}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function init(){
+  document.getElementById('topDate').textContent=new Date().toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+  renderSteps();
+  renderCal();
+  renderPrinciples();
+}
+init();
+</script>
+</body>
+</html>
