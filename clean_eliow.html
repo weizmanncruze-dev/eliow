@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clean Eliow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+:root{--bg:#000;--s1:#111;--s2:#1a1a1a;--s3:#252525;--border:#2a2a2a;--coral:#e8583a;--amber:#f0a500;--teal:#2dd4bf;--blue:#3b82f6;--purple:#a855f7;--green:#22c55e;--red:#ef4444;--text:#fff;--muted:#666;--muted2:#999}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100%;overflow:hidden}
+button{cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+input,select,textarea{font-family:'DM Sans',sans-serif}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(20px);z-index:50}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px}
+.logo span{color:var(--teal)}
+.top-date{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2)}
+.screens{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;display:none;padding:14px 14px 80px}
+.screen.active{display:block}
+.bottom-nav{display:flex;flex-shrink:0;background:rgba(0,0,0,0.97);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,4px);z-index:50}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;gap:3px;background:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.5px;text-transform:uppercase;transition:color 0.15s}
+.nav-btn.active{color:var(--teal)}
+.nav-icon{font-size:18px;line-height:1}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.sec-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.bebas{font-family:'Bebas Neue',sans-serif}
+.mono{font-family:'Space Mono',monospace}
+.iw{display:flex;flex-direction:column;gap:5px}
+.il{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.inp{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-size:15px;width:100%;outline:none;-webkit-appearance:none;transition:border-color 0.2s}
+.inp:focus{border-color:var(--teal)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;border:none;transition:opacity 0.15s;cursor:pointer}
+.btn:active{opacity:0.85}
+.btn-t{background:var(--teal);color:#000}
+.btn-block{width:100%}
+.btn-sm{padding:8px 13px;font-size:12px;border-radius:8px}
+.eff-track{height:7px;background:var(--s3);border-radius:50px;overflow:hidden}
+.eff-fill{height:100%;border-radius:50px;transition:width 0.8s}
+
+/* PLAN DEL DÍA */
+.meal-block{background:var(--s1);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.meal-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.meal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px}
+.meal-sub{font-size:12px;color:var(--muted2);margin-top:2px}
+.meal-badge{font-family:'Space Mono',monospace;font-size:10px;padding:4px 10px;border-radius:50px}
+.meal-items{padding:0 16px 14px}
+.food-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.food-item:last-child{border-bottom:none}
+.food-chk{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);transition:all 0.2s;flex-shrink:0}
+.food-chk.done{background:var(--teal);border-color:var(--teal);color:#000}
+.food-info{flex:1}
+.food-name{font-size:14px;font-weight:500}
+.food-portion{font-size:11px;color:var(--muted2);margin-top:2px}
+.food-tag{font-family:'Space Mono',monospace;font-size:9px;padding:2px 7px;border-radius:50px;margin-top:3px;display:inline-block}
+
+/* PROGRESS RINGS */
+.day-progress{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.prog-box{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.prog-ring-sm{width:56px;height:56px;position:relative;margin:0 auto 6px}
+.prog-ring-sm svg{width:56px;height:56px;transform:rotate(-90deg)}
+.prog-num-sm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px}
+.prog-lbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase}
+
+/* MEDICAMENTOS */
+.med-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.med-icon{font-size:24px;min-width:36px;text-align:center}
+.med-info{flex:1}
+.med-name{font-weight:600;font-size:14px}
+.med-sub{font-size:11px;color:var(--muted2)}
+.med-chk{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);transition:all 0.2s}
+.med-chk.done{background:var(--purple);border-color:var(--purple);color:#fff}
+.day-strip{display:flex;gap:6px;margin-bottom:8px}
+.day-dot-med{width:28px;height:28px;border-radius:6px;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted)}
+.day-dot-med.done{background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.4);color:var(--purple)}
+
+/* CALENDARIO */
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.cal-nav{background:var(--s2);border:1px solid var(--border);color:var(--muted2);border-radius:8px;padding:6px 14px;font-size:16px}
+.cal-dn{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.cal-d{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);text-align:center;padding:4px 0;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--s2);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;flex-direction:column;gap:1px}
+.cal-cell.today{border-color:var(--teal);color:var(--text);font-weight:700}
+.cal-cell.complete{background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.4);color:var(--green)}
+.cal-cell.partial{background:rgba(240,165,0,0.2);border-color:rgba(240,165,0,0.4);color:var(--amber)}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.cst{background:var(--s2);border-radius:10px;padding:10px;text-align:center}
+.cst-n{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1}
+.cst-l{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted2);text-transform:uppercase;margin-top:2px}
+
+/* CALCULADORA */
+.calc-tabs{display:flex;gap:6px;margin-bottom:14px}
+.ctab{flex:1;padding:9px 6px;border-radius:10px;font-family:'Space Mono',monospace;font-size:10px;border:1px solid var(--border);background:var(--s2);color:var(--muted2);text-align:center;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s}
+.ctab.active{background:var(--teal);color:#000;border-color:var(--teal)}
+.portion-guide{background:var(--s2);border-radius:10px;padding:12px;margin-bottom:12px}
+.pg-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.pg-row:last-child{border-bottom:none}
+.pg-icon{font-size:20px;min-width:28px}
+.pg-text{font-size:13px}
+.pg-measure{font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);margin-top:2px}
+.result-box{background:var(--s2);border-radius:12px;padding:14px;margin-top:12px}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.result-row:last-child{border-bottom:none}
+.result-label{font-size:13px}
+.result-val{font-family:'Bebas Neue',sans-serif;font-size:20px}
+.verdict-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:50px;font-size:13px;font-weight:600;margin-bottom:10px}
+
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--teal);color:#000;padding:9px 22px;border-radius:50px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:transform 0.3s;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top-bar">
+  <div class="logo">CLEAN <span>ELIOW</span></div>
+  <div class="top-date" id="topDate"></div>
+</div>
+<div class="screens">
+
+<!-- ═══ PLAN DEL DÍA ═══ -->
+<div id="sc-plan" class="screen active">
+
+  <div style="background:linear-gradient(135deg,#0a1a10,#000);border:1px solid #1a2a1a;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:2px;margin-bottom:4px">PLAN ROSA — LN. ALMA ROSA URALDO</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;line-height:1.1;margin-bottom:4px">Plan<br>del día</div>
+    <div style="font-size:12px;color:var(--muted2)">Siguiente consulta: 23 de mayo · 9:00am</div>
+  </div>
+
+  <!-- Progreso general -->
+  <div class="day-progress">
+    <div class="prog-box">
+      <div class="prog-ring-sm">
+        <svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--s3)" stroke-width="4"/><circle id="pa1" cx="28" cy="28" r="22" fill="none" stroke="var(--teal)" stroke-width="4" stroke-dasharray="138" stroke-dashoffset="138" stroke-linecap="round"/></svg>
+        <div class="prog-num-sm" id="pn1" style="color:var(--teal)">0%</div>
+      </div>
+      <div class="prog-lbl">Comidas</div>
+    </div>
+    <div class="prog-box">
+      <div class="prog-ring-sm">
+        <svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--s3)" stroke-width="4"/><circle id="pa2" cx="28" cy="28" r="22" fill="none" stroke="var(--purple)" stroke-width="4" stroke-dasharray="138" stroke-dashoffset="138" stroke-linecap="round"/></svg>
+        <div class="prog-num-sm" id="pn2" style="color:var(--purple)">0%</div>
+      </div>
+      <div class="prog-lbl">Medicamentos</div>
+    </div>
+  </div>
+
+  <!-- PREENTRENO -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal('pre')">
+      <div>
+        <div class="meal-title" style="color:var(--amber)">🏋️ Preentreno</div>
+        <div class="meal-sub">Antes del gym · Energía y músculo</div>
+      </div>
+      <div class="meal-badge" style="background:rgba(240,165,0,0.15);color:var(--amber)" id="pre-badge">0/4</div>
+    </div>
+    <div class="meal-items" id="pre-items">
+      <div class="food-item">
+        <button class="food-chk" id="fc-pre1" onclick="toggleFood('pre1')"></button>
+        <div class="food-info">
+          <div class="food-name">Avena o amaranto</div>
+          <div class="food-portion">4 cucharadas · 1 porción cereal</div>
+          <span class="food-tag" style="background:rgba(240,165,0,0.12);color:var(--amber)">🌾 Cereal</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-pre2" onclick="toggleFood('pre2')"></button>
+        <div class="food-info">
+          <div class="food-name">Plátano o 1 manzana</div>
+          <div class="food-portion">1 pieza · 1 porción fruta = 1 puño</div>
+          <span class="food-tag" style="background:rgba(34,197,94,0.12);color:var(--green)">🍌 Fruta</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-pre3" onclick="toggleFood('pre3')"></button>
+        <div class="food-info">
+          <div class="food-name">Proteína Whey Gold Standard</div>
+          <div class="food-portion">1 scoop · 350ml agua</div>
+          <span class="food-tag" style="background:rgba(232,88,58,0.12);color:var(--coral)">🥛 Proteína</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-pre4" onclick="toggleFood('pre4')"></button>
+        <div class="food-info">
+          <div class="food-name">Creatina</div>
+          <div class="food-portion">Con los 350ml de agua</div>
+          <span class="food-tag" style="background:rgba(59,130,246,0.12);color:var(--blue)">💊 Suplemento</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMIDA -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal('lunch')">
+      <div>
+        <div class="meal-title" style="color:var(--teal)">🍽️ Comida</div>
+        <div class="meal-sub">Comida principal del día</div>
+      </div>
+      <div class="meal-badge" style="background:rgba(45,212,191,0.12);color:var(--teal)" id="lunch-badge">0/5</div>
+    </div>
+    <div class="meal-items" id="lunch-items">
+      <div class="food-item">
+        <button class="food-chk" id="fc-l1" onclick="toggleFood('l1')"></button>
+        <div class="food-info">
+          <div class="food-name">Verduras</div>
+          <div class="food-portion">2½ porciones · 1 porción = 1 puño</div>
+          <span class="food-tag" style="background:rgba(34,197,94,0.12);color:var(--green)">🥦 Verdura</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-l2" onclick="toggleFood('l2')"></button>
+        <div class="food-info">
+          <div class="food-name">Carne o proteína animal</div>
+          <div class="food-portion">3 porciones · 1 porción = 1 palma</div>
+          <span class="food-tag" style="background:rgba(232,88,58,0.12);color:var(--coral)">🥩 Proteína</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-l3" onclick="toggleFood('l3')"></button>
+        <div class="food-info">
+          <div class="food-name">Leguminosa</div>
+          <div class="food-portion">1 porción · 2 dedos en plato hondo</div>
+          <span class="food-tag" style="background:rgba(168,85,247,0.12);color:var(--purple)">🫘 Leguminosa</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-l4" onclick="toggleFood('l4')"></button>
+        <div class="food-info">
+          <div class="food-name">Cereales</div>
+          <div class="food-portion">3 porciones · 2 dedos en plato hondo</div>
+          <span class="food-tag" style="background:rgba(240,165,0,0.12);color:var(--amber)">🌾 Cereal</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-l5" onclick="toggleFood('l5')"></button>
+        <div class="food-info">
+          <div class="food-name">Frutas</div>
+          <div class="food-portion">2 porciones · 1 porción = 1 puño</div>
+          <span class="food-tag" style="background:rgba(34,197,94,0.12);color:var(--green)">🍎 Fruta</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLACIÓN -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal('snack')">
+      <div>
+        <div class="meal-title" style="color:var(--blue)">🥕 Colación</div>
+        <div class="meal-sub">Entre comidas</div>
+      </div>
+      <div class="meal-badge" style="background:rgba(59,130,246,0.12);color:var(--blue)" id="snack-badge">0/2</div>
+    </div>
+    <div class="meal-items" id="snack-items">
+      <div class="food-item">
+        <button class="food-chk" id="fc-s1" onclick="toggleFood('s1')"></button>
+        <div class="food-info">
+          <div class="food-name">Jícama</div>
+          <div class="food-portion">1 porción · 1 puño</div>
+          <span class="food-tag" style="background:rgba(34,197,94,0.12);color:var(--green)">🥦 Verdura</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-s2" onclick="toggleFood('s2')"></button>
+        <div class="food-info">
+          <div class="food-name">Gelatina casera de grenetina</div>
+          <div class="food-portion">1 cucharada de grenetina · Colágeno natural</div>
+          <span class="food-tag" style="background:rgba(45,212,191,0.12);color:var(--teal)">✨ Colágeno</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENA -->
+  <div class="meal-block">
+    <div class="meal-header" onclick="toggleMeal('dinner')">
+      <div>
+        <div class="meal-title" style="color:var(--purple)">🌙 Cena</div>
+        <div class="meal-sub">Carne + ensaladas · Ligera</div>
+      </div>
+      <div class="meal-badge" style="background:rgba(168,85,247,0.12);color:var(--purple)" id="dinner-badge">0/4</div>
+    </div>
+    <div class="meal-items" id="dinner-items">
+      <div class="food-item">
+        <button class="food-chk" id="fc-d1" onclick="toggleFood('d1')"></button>
+        <div class="food-info">
+          <div class="food-name">Verduras / Ensalada</div>
+          <div class="food-portion">2½ porciones · 1 porción = 1 puño</div>
+          <span class="food-tag" style="background:rgba(34,197,94,0.12);color:var(--green)">🥦 Verdura</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-d2" onclick="toggleFood('d2')"></button>
+        <div class="food-info">
+          <div class="food-name">Carne blanca (pollo, pescado)</div>
+          <div class="food-portion">2 porciones · 1 porción = 1 palma</div>
+          <span class="food-tag" style="background:rgba(232,88,58,0.12);color:var(--coral)">🥩 Proteína</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-d3" onclick="toggleFood('d3')"></button>
+        <div class="food-info">
+          <div class="food-name">Cereales</div>
+          <div class="food-portion">2 porciones · 2 dedos en plato hondo</div>
+          <span class="food-tag" style="background:rgba(240,165,0,0.12);color:var(--amber)">🌾 Cereal</span>
+        </div>
+      </div>
+      <div class="food-item">
+        <button class="food-chk" id="fc-d4" onclick="toggleFood('d4')"></button>
+        <div class="food-info">
+          <div class="food-name">Leguminosa</div>
+          <div class="food-portion">1 porción · 2 dedos en plato hondo</div>
+          <span class="food-tag" style="background:rgba(168,85,247,0.12);color:var(--purple)">🫘 Leguminosa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDICAMENTOS -->
+  <div class="sec-lbl">Medicamentos — 7 días</div>
+  <div class="card">
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px">Día <span id="medDay" style="color:var(--purple);font-weight:600">1</span> de 7</div>
+    <div class="day-strip" id="medStrip"></div>
+    <div class="med-card" style="margin-top:10px">
+      <div class="med-icon">💊</div>
+      <div class="med-info">
+        <div class="med-name">Desparasitante</div>
+        <div class="med-sub">1 toma total — solo una vez</div>
+      </div>
+      <button class="med-chk" id="mc-desp" onclick="toggleMed('desp')"></button>
+    </div>
+    <div class="med-card">
+      <div class="med-icon">🦠</div>
+      <div class="med-info">
+        <div class="med-name">Ventro (Probiótico)</div>
+        <div class="med-sub">1 vez al día · 7 días seguidos</div>
+      </div>
+      <button class="med-chk" id="mc-ventro" onclick="toggleMed('ventro')"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CALENDARIO ═══ -->
+<div id="sc-cal" class="screen">
+  <div class="card">
+    <div class="cal-hdr">
+      <button class="cal-nav" onclick="chgMo(-1)">&#8249;</button>
+      <div class="cal-month" id="moName"></div>
+      <button class="cal-nav" onclick="chgMo(1)">&#8250;</button>
+    </div>
+    <div class="cal-dn">
+      <div class="cal-d">D</div><div class="cal-d">L</div><div class="cal-d">M</div>
+      <div class="cal-d">X</div><div class="cal-d">J</div><div class="cal-d">V</div><div class="cal-d">S</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(34,197,94,0.3)"></div>Completo</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)"><div style="width:12px;height:12px;border-radius:3px;background:rgba(240,165,0,0.3)"></div>Parcial</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+      <button class="btn btn-t btn-block btn-sm" onclick="markToday('complete')">✓ Día completo</button>
+      <button class="btn btn-block btn-sm" style="background:rgba(240,165,0,0.15);color:var(--amber);border:1px solid rgba(240,165,0,0.3)" onclick="markToday('partial')">◑ Día parcial</button>
+    </div>
+    <div class="cal-stats">
+      <div class="cst"><div class="cst-n" id="csC" style="color:var(--green)">0</div><div class="cst-l">completos</div></div>
+      <div class="cst"><div class="cst-n" id="csP" style="color:var(--amber)">0</div><div class="cst-l">parciales</div></div>
+      <div class="cst"><div class="cst-n" id="csS" style="color:var(--teal)">0</div><div class="cst-l">racha</div></div>
+    </div>
+  </div>
+  <div class="sec-lbl">Adherencia del plan</div>
+  <div class="card" id="adherStats"></div>
+  <div class="sec-lbl">Próxima consulta</div>
+  <div class="card" style="text-align:center;padding:20px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--teal);line-height:1" id="daysLeft">0</div>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:2px">días para la consulta</div>
+    <div style="font-size:13px;color:var(--muted2);margin-top:6px">23 de mayo · 9:00am · Rosa</div>
+  </div>
+</div>
+
+<!-- ═══ CALCULADORA ═══ -->
+<div id="sc-calc" class="screen">
+  <div style="background:linear-gradient(135deg,#0a100a,#000);border:1px solid #1a2a1a;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:2px;margin-bottom:4px">CALCULADORA</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;line-height:1.1;margin-bottom:4px">Porciones<br>e inteligencia</div>
+    <div style="font-size:12px;color:var(--muted2)">Verifica y descubre qué comer</div>
+  </div>
+
+  <div class="calc-tabs">
+    <button class="ctab active" onclick="setCalcTab('verify',this)">Verificar</button>
+    <button class="ctab" onclick="setCalcTab('recommend',this)">Recomendar</button>
+  </div>
+
+  <!-- VERIFICAR -->
+  <div id="calc-verify">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:4px">¿Están bien mis porciones?</div>
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:14px">Ingresa lo que comiste y te digo si va con el plan de Rosa</div>
+
+      <div class="sec-lbl" style="margin-top:0">Guía de medidas</div>
+      <div class="portion-guide">
+        <div class="pg-row"><div class="pg-icon">✊</div><div><div class="pg-text">Frutas y verduras</div><div class="pg-measure">1 puño cerrado = 1 porción</div></div></div>
+        <div class="pg-row"><div class="pg-icon">✋</div><div><div class="pg-text">Carnes y proteínas</div><div class="pg-measure">1 palma de la mano = 1 porción</div></div></div>
+        <div class="pg-row"><div class="pg-icon">🤌</div><div><div class="pg-text">Cereales y leguminosas</div><div class="pg-measure">2 dedos de altura en plato hondo = 1 porción</div></div></div>
+      </div>
+
+      <div style="margin-bottom:10px">
+        <div class="iw" style="margin-bottom:8px"><label class="il">Verduras (porciones)</label><input type="number" class="inp" id="vVerd" placeholder="ej. 2.5" step="0.5" min="0"></div>
+        <div class="iw" style="margin-bottom:8px"><label class="il">Frutas (porciones)</label><input type="number" class="inp" id="vFrut" placeholder="ej. 3" min="0"></div>
+        <div class="iw" style="margin-bottom:8px"><label class="il">Carnes/proteína (porciones)</label><input type="number" class="inp" id="vCarn" placeholder="ej. 5" min="0"></div>
+        <div class="iw" style="margin-bottom:8px"><label class="il">Cereales (porciones)</label><input type="number" class="inp" id="vCer" placeholder="ej. 5" min="0"></div>
+        <div class="iw" style="margin-bottom:8px"><label class="il">Leguminosas (porciones)</label><input type="number" class="inp" id="vLeg" placeholder="ej. 2" min="0"></div>
+      </div>
+      <button class="btn btn-t btn-block" onclick="verifyPortions()">Verificar →</button>
+      <div id="verifyResult"></div>
+    </div>
+  </div>
+
+  <!-- RECOMENDAR -->
+  <div id="calc-recommend" style="display:none">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:4px">¿Qué puedo comer?</div>
+      <div style="font-size:12px;color:var(--muted2);margin-bottom:14px">Dime qué tienes disponible y te recomiendo combinaciones del plan</div>
+      <div class="iw" style="margin-bottom:10px">
+        <label class="il">¿Qué comida es?</label>
+        <select class="inp" id="recMeal">
+          <option value="pre">Preentreno</option>
+          <option value="lunch">Comida</option>
+          <option value="snack">Colación</option>
+          <option value="dinner">Cena</option>
+        </select>
+      </div>
+      <div class="iw" style="margin-bottom:10px">
+        <label class="il">¿Qué tienes disponible? (escribe)</label>
+        <input type="text" class="inp" id="recAvail" placeholder="ej. pollo, arroz, brócoli, manzana">
+      </div>
+      <div class="iw" style="margin-bottom:14px">
+        <label class="il">¿Cuánto tiempo tienes para preparar?</label>
+        <select class="inp" id="recTime">
+          <option value="fast">Menos de 10 min</option>
+          <option value="medium">10-20 min</option>
+          <option value="normal">Más de 20 min</option>
+        </select>
+      </div>
+      <button class="btn btn-t btn-block" onclick="getRecommendation()">Recomendar →</button>
+      <div id="recResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REGLAS ═══ -->
+<div id="sc-rules" class="screen">
+  <div style="background:linear-gradient(135deg,#0a1010,#000);border:1px solid #1a2a2a;border-radius:16px;padding:18px;margin-bottom:14px">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:2px;margin-bottom:4px">LN. ALMA ROSA URALDO</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;line-height:1;margin-bottom:4px">REGLAS<br>DEL PLAN</div>
+    <div style="font-size:12px;color:var(--muted2)">Lo que Rosa indicó al pie de la letra</div>
+  </div>
+
+  <div class="sec-lbl">Recomendaciones de Rosa</div>
+  <div id="rulesList"></div>
+
+
+
+  <div class="sec-lbl">Lista de alimentos por grupo</div>
+  <div id="foodGroups"></div>
+</div>
+
+</div>
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="goScreen('plan',0)"><span class="nav-icon">🥗</span>Plan</button>
+  <button class="nav-btn" onclick="goScreen('cal',1)"><span class="nav-icon">📅</span>Registro</button>
+  <button class="nav-btn" onclick="goScreen('calc',2)"><span class="nav-icon">🧮</span>Calcular</button>
+  <button class="nav-btn" onclick="goScreen('rules',3)"><span class="nav-icon">📋</span>Reglas</button>
+</nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ STATE ═══
+let eaData = JSON.parse(localStorage.getItem('ea_v1')||'null')||{days:{},checked:{},meds:{}};
+let calOff = 0;
+const CONSULT_DATE = new Date('2026-05-23');
+
+function save(){localStorage.setItem('ea_v1',JSON.stringify(eaData));}
+function today(){return new Date().toISOString().split('T')[0];}
+function todayChecked(){if(!eaData.checked[today()])eaData.checked[today()]={};return eaData.checked[today()];}
+function todayMeds(){if(!eaData.meds[today()])eaData.meds[today()]={};return eaData.meds[today()];}
+
+// ═══ INIT ═══
+function init(){
+  document.getElementById('topDate').textContent = new Date().toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+  renderMedStrip();
+  renderCal();
+  renderRules();
+  renderFoodGroups();
+  updateProgress();
+  updateDaysLeft();
+}
+
+// ═══ SCREENS ═══
+function goScreen(id,i){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sc-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn')[i].classList.add('active');
+  if(id==='cal')renderCal();
+}
+
+// ═══ FOOD TRACKING ═══
+function toggleMeal(id){
+  const items = document.getElementById(id+'-items');
+  items.style.display = items.style.display==='none'?'block':'none';
+}
+
+const MEAL_COUNTS = {pre:4,lunch:5,snack:2,dinner:4};
+const FOOD_MEALS = {
+  pre1:'pre',pre2:'pre',pre3:'pre',pre4:'pre',
+  l1:'lunch',l2:'lunch',l3:'lunch',l4:'lunch',l5:'lunch',
+  s1:'snack',s2:'snack',
+  d1:'dinner',d2:'dinner',d3:'dinner',d4:'dinner'
+};
+
+function toggleFood(id){
+  const ch = todayChecked();
+  ch[id] = !ch[id];
+  save();
+  const btn = document.getElementById('fc-'+id);
+  btn.classList.toggle('done', ch[id]);
+  btn.textContent = ch[id]?'✓':'';
+  updateMealBadge(FOOD_MEALS[id]);
+  updateProgress();
+}
+
+function updateMealBadge(meal){
+  const ch = todayChecked();
+  const keys = Object.keys(FOOD_MEALS).filter(k=>FOOD_MEALS[k]===meal);
+  const done = keys.filter(k=>ch[k]).length;
+  const total = MEAL_COUNTS[meal];
+  const badge = document.getElementById(meal+'-badge');
+  if(badge) badge.textContent = `${done}/${total}`;
+}
+
+function updateProgress(){
+  const ch = todayChecked();
+  const meds = todayMeds();
+  const totalFood = 15;
+  const doneFood = Object.values(ch).filter(Boolean).length;
+  const pctFood = Math.round(doneFood/totalFood*100);
+  const doneMeds = Object.values(meds).filter(Boolean).length;
+  const pctMeds = Math.round(doneMeds/2*100);
+
+  document.getElementById('pn1').textContent = pctFood+'%';
+  document.getElementById('pa1').style.strokeDashoffset = 138*(1-pctFood/100);
+  document.getElementById('pn2').textContent = pctMeds+'%';
+  document.getElementById('pa2').style.strokeDashoffset = 138*(1-pctMeds/100);
+
+  // Restore checkboxes
+  Object.keys(ch).forEach(id=>{
+    const btn = document.getElementById('fc-'+id);
+    if(btn){btn.classList.toggle('done',ch[id]);btn.textContent=ch[id]?'✓':'';}
+  });
+  Object.keys(MEAL_COUNTS).forEach(m=>updateMealBadge(m));
+
+  // Meds
+  Object.keys(meds).forEach(id=>{
+    const btn = document.getElementById('mc-'+id);
+    if(btn){btn.classList.toggle('done',meds[id]);btn.textContent=meds[id]?'✓':'';}
+  });
+}
+
+// ═══ MEDICATIONS ═══
+function toggleMed(id){
+  const meds = todayMeds();
+  meds[id] = !meds[id];
+  save();
+  const btn = document.getElementById('mc-'+id);
+  btn.classList.toggle('done', meds[id]);
+  btn.textContent = meds[id]?'✓':'';
+  // Update med day counter
+  const ventroCount = Object.values(eaData.meds).filter(d=>d.ventro).length;
+  document.getElementById('medDay').textContent = Math.min(ventroCount+1,7);
+  updateProgress();
+  showToast(meds[id]?'💊 Medicamento marcado':'Medicamento desmarcado');
+}
+
+function renderMedStrip(){
+  const now = new Date();
+  let html = '';
+  for(let i=0;i<7;i++){
+    const d = new Date(now);
+    d.setDate(now.getDate()-i);
+    const k = d.toISOString().split('T')[0];
+    const done = eaData.meds[k]?.ventro;
+    html = `<div class="day-dot-med ${done?'done':''}">${7-i}</div>` + html;
+  }
+  document.getElementById('medStrip').innerHTML = html;
+  const ventroCount = Object.keys(eaData.meds).filter(k=>eaData.meds[k].ventro).length;
+  document.getElementById('medDay').textContent = Math.min(ventroCount+1,7);
+}
+
+// ═══ CALENDARIO ═══
+function chgMo(d){calOff+=d;renderCal();}
+function markToday(type){
+  eaData.days[today()]=type;save();renderCal();
+  showToast(type==='complete'?'✓ Día completo':'◑ Día parcial registrado');
+}
+function renderCal(){
+  const now=new Date(),y=now.getFullYear(),mo=now.getMonth()+calOff;
+  const date=new Date(y,mo,1);
+  document.getElementById('moName').textContent=date.toLocaleDateString('es-MX',{month:'long',year:'numeric'}).toUpperCase();
+  const first=new Date(date.getFullYear(),date.getMonth(),1).getDay();
+  const dim=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+  const todayStr=today();let html='',comp=0,part=0;
+  for(let i=0;i<first;i++)html+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const st=eaData.days[ds];
+    if(st==='complete')comp++;if(st==='partial')part++;
+    html+=`<div class="cal-cell ${st||''} ${ds===todayStr?'today':''}">${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+  document.getElementById('csC').textContent=comp;
+  document.getElementById('csP').textContent=part;
+  document.getElementById('csS').textContent=getStreak();
+  renderAdher(comp,part);
+}
+function getStreak(){
+  let s=0;const d=new Date();
+  while(true){const k=d.toISOString().split('T')[0];if(eaData.days[k]==='complete'){s++;d.setDate(d.getDate()-1);}else break;}
+  return s;
+}
+function renderAdher(comp,part){
+  const total=comp+part;
+  if(!total){document.getElementById('adherStats').innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Sin registros aún.</div>';return;}
+  const day=new Date().getDate();
+  const p1=Math.round(comp/Math.max(total,1)*100);
+  const p2=Math.min(Math.round(total/day*100),100);
+  document.getElementById('adherStats').innerHTML=[
+    {l:'Días completos vs parciales',v:p1,c:'var(--green)'},
+    {l:'Consistencia este mes',v:p2,c:'var(--teal)'},
+  ].map(b=>`<div style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px"><span>${b.l}</span><span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${b.c}">${b.v}%</span></div>
+    <div class="eff-track"><div class="eff-fill" style="width:${b.v}%;background:${b.c}"></div></div>
+  </div>`).join('');
+}
+function updateDaysLeft(){
+  const diff = Math.ceil((CONSULT_DATE - new Date())/(1000*60*60*24));
+  document.getElementById('daysLeft').textContent = Math.max(diff,0);
+}
+
+// ═══ CALCULADORA ═══
+function setCalcTab(id,btn){
+  document.getElementById('calc-verify').style.display = id==='verify'?'block':'none';
+  document.getElementById('calc-recommend').style.display = id==='recommend'?'block':'none';
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Totales del plan de Rosa por día
+const PLAN_TOTALS = {
+  verduras: 5, // 2.5 comida + 2.5 cena
+  frutas: 3,   // 1 preentreno + 2 comida
+  carnes: 5,   // 3 comida + 2 cena
+  cereales: 5, // 1 preentreno + 3 comida + 2 cena (aprox)
+  leguminosas: 2 // 1 comida + 1 cena
+};
+
+function verifyPortions(){
+  const v = parseFloat(document.getElementById('vVerd').value)||0;
+  const f = parseFloat(document.getElementById('vFrut').value)||0;
+  const c = parseFloat(document.getElementById('vCarn').value)||0;
+  const ce = parseFloat(document.getElementById('vCer').value)||0;
+  const l = parseFloat(document.getElementById('vLeg').value)||0;
+
+  const groups = [
+    {name:'Verduras',got:v,target:PLAN_TOTALS.verduras,unit:'puños',color:'var(--green)'},
+    {name:'Frutas',got:f,target:PLAN_TOTALS.frutas,unit:'puños',color:'var(--teal)'},
+    {name:'Carnes/Proteína',got:c,target:PLAN_TOTALS.carnes,unit:'palmas',color:'var(--coral)'},
+    {name:'Cereales',got:ce,target:PLAN_TOTALS.cereales,unit:'porciones',color:'var(--amber)'},
+    {name:'Leguminosas',got:l,target:PLAN_TOTALS.leguminosas,unit:'porciones',color:'var(--purple)'},
+  ];
+
+  const allOk = groups.every(g=>g.got>=g.target*0.8&&g.got<=g.target*1.3);
+  const col = allOk?'var(--green)':'var(--amber)';
+
+  document.getElementById('verifyResult').innerHTML = `<div class="result-box">
+    <div class="verdict-badge" style="background:${allOk?'rgba(34,197,94,0.15)':'rgba(240,165,0,0.15)'};color:${col}">
+      ${allOk?'✅ Plan correcto':'⚠️ Ajustar porciones'}
+    </div>
+    ${groups.map(g=>{
+      const pct = g.target>0?Math.round((g.got/g.target)*100):0;
+      const ok = pct>=80&&pct<=130;
+      const col = ok?'var(--green)':pct<80?'var(--red)':'var(--amber)';
+      const msg = pct<80?'Falta':pct>130?'Exceso':'OK';
+      return`<div class="result-row">
+        <div class="result-label">${g.name}<div style="font-size:10px;color:var(--muted2)">${g.got}/${g.target} ${g.unit}</div></div>
+        <div>
+          <div class="result-val" style="color:${col}">${pct}%</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:${col}">${msg}</div>
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="font-size:12px;color:var(--muted2);margin-top:10px;padding:10px;background:var(--s3);border-radius:8px">
+      💡 El plan de Rosa es por día completo. Si ves "Falta", distribúyelo en las comidas que te quedan del día.
+    </div>
+  </div>`;
+}
+
+const RECS = {
+  pre:{
+    fast:['Avena con leche + plátano · Rápido y completo para el gym','Amaranto con agua + manzana + Whey · Directo al grano'],
+    medium:['Avena cocida con plátano y nuez · Más sabroso y nutritivo'],
+    normal:['Hot cakes de avena + fruta + Whey · La versión premium del preentreno'],
+  },
+  lunch:{
+    fast:['Pollo a la plancha + arroz + brócoli al vapor · El combo clásico de Rosa','Atún + frijoles + tortillas + ensalada · Sin cocinar casi nada'],
+    medium:['Pechuga de pollo + lentejas + verduras salteadas + arroz','Sardina + garbanzos + ensalada de tomate + tortillas'],
+    normal:['Caldo de pollo con verduras + frijoles + arroz · La comida ideal del plan'],
+  },
+  snack:{
+    fast:['Jícama con limón + gelatina de grenetina · La colación exacta de Rosa'],
+    medium:['Jícama + gelatina de grenetina con fruta picada adentro'],
+    normal:['Jícama + gelatina de grenetina con fruta + un vaso de agua mineral'],
+  },
+  dinner:{
+    fast:['Pollo a la plancha + ensalada + tortillas · Cena ligera y rápida','Atún + ensalada de lechuga y tomate + arroz'],
+    medium:['Pechuga de pollo + ensalada de verduras + frijoles'],
+    normal:['Pollo al vapor + ensalada grande + leguminosa + cereal · La cena perfecta del plan'],
+  }
+};
+
+function getRecommendation(){
+  const meal = document.getElementById('recMeal').value;
+  const avail = document.getElementById('recAvail').value.toLowerCase();
+  const time = document.getElementById('recTime').value;
+  const recs = RECS[meal][time]||RECS[meal].fast;
+  const r = document.getElementById('recResult');
+  r.innerHTML = `<div class="result-box">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Opciones recomendadas</div>
+    ${recs.map((rec,i)=>`<div style="padding:10px;background:var(--s3);border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.6">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--teal);margin-right:6px">${i+1}.</span>${rec}
+    </div>`).join('')}
+    <div style="font-size:12px;color:var(--muted2);margin-top:8px;padding:10px;background:var(--s3);border-radius:8px">
+      🔑 Recuerda las medidas: <strong style="color:var(--text)">verduras = puño · carnes = palma · cereales = 2 dedos en plato</strong>
+    </div>
+  </div>`;
+}
+
+// ═══ REGLAS ═══
+function renderRules(){
+  const rules = [
+    {icon:'⏰',t:'Horarios fijos',d:'Establecer horarios fijos de comida'},
+    {icon:'🍳',t:'Preparación saludable',d:'Alimentos hervidos, al vapor o a la plancha. No frito, capeado o empanizado'},
+    {icon:'🥩',t:'Preferir carnes blancas',d:'Pollo, pescado. Moderar carne roja'},
+    {icon:'🧂',t:'Sin exceso de sal',d:'Moderar el consumo de sal. No agregar extra'},
+    {icon:'🌿',t:'Sin alimentos de olor fuerte',d:'Evitar ajo, pimienta, orégano, mostaza, canela en exceso'},
+    {icon:'🕐',t:'Masticar despacio',d:'Mínimo 30 minutos de tiempo de comida. Masticar bien'},
+    {icon:'🏃',t:'Ejercicio físico',d:'Caminata rápida ¾ — Lunes a Viernes — 4½ días'},
+    {icon:'😴',t:'Horas de sueño',d:'4:30pm - 10:30pm durante 10 días'},
+    {icon:'💊',t:'Desparasitante',d:'1 toma única — ya tomado'},
+    {icon:'🦠',t:'Ventro (probiótico)',d:'1 vez al día por 7 días seguidos'},
+  ];
+  document.getElementById('rulesList').innerHTML = rules.map(r=>`
+    <div class="card" style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;margin-bottom:8px">
+      <div style="font-size:22px;min-width:32px">${r.icon}</div>
+      <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">${r.t}</div><div style="font-size:12px;color:var(--muted2)">${r.d}</div></div>
+    </div>`).join('');
+
+
+}
+
+function renderFoodGroups(){
+  const groups = [
+    {name:'Verduras',color:'var(--green)',items:'Acelga, brócoli, calabacita, cebolla, champiñones, col, coliflor, ejotes, espinaca, flor de calabaza, jícama, jitomate, lechuga, nopal, pepino, pimiento, rábano, tomate'},
+    {name:'Frutas',color:'var(--teal)',items:'Durazno, fresa, guayaba, higo, kiwi, mandarina, mango, mamey, manzana, melón, naranja, papaya, pera, piña, plátano, sandía, uva, zarzamora'},
+    {name:'Cereales y tubérculos',color:'var(--amber)',items:'Amaranto, arroz, avena, elote, espaghetti, galleta María, granola, hot cakes, pan tostado, papa cocida, pasta, tortilla de maíz'},
+    {name:'Leguminosas',color:'var(--purple)',items:'Alubia, chícharo, garbanzo, haba, lenteja, frijol'},
+    {name:'Proteína animal',color:'var(--coral)',items:'Atún, carne de cerdo, carne de res, conejo, pechuga de pollo, pescado, pollo, pavo, huevo (3 claras), sardina, queso panela'},
+    {name:'Libres (sin restricción)',color:'var(--muted2)',items:'Agua, agua mineral, café de grano, café de polvo, caldo sin grasa, canela, coca cola zero, flor de Jamaica, mostaza, orégano, pimienta'},
+  ];
+  document.getElementById('foodGroups').innerHTML = groups.map(g=>`
+    <div class="card" style="margin-bottom:8px">
+      <div style="font-weight:600;font-size:14px;color:${g.color};margin-bottom:6px">${g.name}</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.6">${g.items}</div>
+    </div>`).join('');
+}
+
+// ═══ TOAST ═══
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+init();
+</script>
+</body>
+</html>
