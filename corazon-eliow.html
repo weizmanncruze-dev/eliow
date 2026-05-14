@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>El Corazón de Elio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0d10;
+    --surface: #16161c;
+    --surface2: #1e1e27;
+    --border: rgba(255,255,255,0.07);
+    --red: #e05c6a;
+    --red-glow: rgba(224,92,106,0.15);
+    --purple: #9b7fe8;
+    --purple-glow: rgba(155,127,232,0.15);
+    --teal: #4ecdc4;
+    --teal-glow: rgba(78,205,196,0.12);
+    --gold: #f0c060;
+    --gold-glow: rgba(240,192,96,0.12);
+    --text: #e8e4f0;
+    --text-muted: #7a758a;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(155,127,232,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(224,92,106,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 32px 24px 0;
+    text-align: center;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo span { color: var(--red); }
+  .tagline {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 16px 0;
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 9px 20px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+  .tab.active {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+
+  /* ── MAIN ── */
+  main {
+    position: relative;
+    z-index: 10;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── PRINCIPIOS ── */
+  .principios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 480px) { .principios-grid { grid-template-columns: 1fr; } }
+
+  .principio-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .principio-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .principio-card.ev::before { background: var(--purple-glow); }
+  .principio-card.mad::before { background: var(--teal-glow); }
+  .principio-card.com::before { background: var(--red-glow); }
+  .principio-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); }
+  .principio-card:hover::before { opacity: 1; }
+
+  .p-icon { font-size: 28px; margin-bottom: 10px; }
+  .p-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .p-name.ev { color: var(--purple); }
+  .p-name.mad { color: var(--teal); }
+  .p-name.com { color: var(--red); }
+  .p-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  .valores-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 480px) { .valores-grid { grid-template-columns: 1fr; } }
+
+  .valor-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .valor-pill:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
+  .valor-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .valor-text { font-size: 13px; font-weight: 500; }
+  .valor-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+
+  /* ── CONSEJERO ── */
+  .chat-window {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    height: 380px;
+    overflow-y: auto;
+    padding: 20px;
+    margin-bottom: 14px;
+    scroll-behavior: smooth;
+  }
+  .chat-window::-webkit-scrollbar { width: 4px; }
+  .chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .msg {
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    animation: fadeIn 0.25s ease;
+  }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .msg.ai .msg-avatar { background: var(--red-glow); border: 1px solid var(--red); }
+  .msg.user .msg-avatar { background: var(--purple-glow); border: 1px solid var(--purple); }
+  .msg-bubble {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .msg.ai .msg-bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    color: var(--text);
+  }
+  .msg.user .msg-bubble {
+    background: var(--red);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-tag {
+    display: inline-block;
+    background: var(--purple-glow);
+    border: 1px solid rgba(155,127,232,0.3);
+    color: var(--purple);
+    font-size: 11px;
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin: 4px 2px 0;
+  }
+  .msg-tag.teal { background: var(--teal-glow); border-color: rgba(78,205,196,0.3); color: var(--teal); }
+  .msg-tag.red { background: var(--red-glow); border-color: rgba(224,92,106,0.3); color: var(--red); }
+
+  .chat-form {
+    display: flex;
+    gap: 10px;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+  }
+  .chat-input:focus { border-color: rgba(224,92,106,0.5); }
+  .chat-input::placeholder { color: var(--text-muted); }
+
+  .btn {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #c94d5a; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .suggestion {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .suggestion:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── LIBROS ── */
+  .libros-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .libros-form label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .libros-form textarea, .libros-form select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .libros-form textarea:focus, .libros-form select:focus { border-color: rgba(240,192,96,0.5); }
+  .libros-form select option { background: var(--surface2); }
+
+  .libros-result {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .libro-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .libro-card:hover { border-color: rgba(255,255,255,0.15); }
+  .libro-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--gold-glow);
+    border: 1px solid rgba(240,192,96,0.3);
+    color: var(--gold);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .libro-info { flex: 1; }
+  .libro-title { font-family: 'Playfair Display', serif; font-size: 15px; margin-bottom: 4px; }
+  .libro-author { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .libro-why { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .libro-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .libro-tag {
+    font-size: 11px;
+    background: var(--gold-glow);
+    border: 1px solid rgba(240,192,96,0.2);
+    color: var(--gold);
+    border-radius: 20px;
+    padding: 2px 8px;
+  }
+
+  /* loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .empty-state .big { font-size: 32px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">El corazón de <span>Elio</span></div>
+  <div class="tagline">Tu sistema personal de relación · Elio × Luisa</div>
+</header>
+
+<nav>
+  <button class="tab active" onclick="setTab('principios')">🧭 Principios</button>
+  <button class="tab" onclick="setTab('consejero')">💬 Consejero</button>
+  <button class="tab" onclick="setTab('libros')">📚 Libros</button>
+</nav>
+
+<main>
+
+  <!-- ── SECCIÓN: PRINCIPIOS ── -->
+  <section id="principios" class="section active">
+    <p class="section-label">Tus tres principios rectores</p>
+    <div class="principios-grid">
+      <div class="principio-card ev">
+        <div class="p-icon">🌱</div>
+        <div class="p-name ev">Evolución</div>
+        <div class="p-desc">Cada conflicto nos deja mejores que antes. No retroceder, siempre aprender.</div>
+      </div>
+      <div class="principio-card mad">
+        <div class="p-icon">🧠</div>
+        <div class="p-name mad">Madurez</div>
+        <div class="p-desc">Responder desde la razón, no desde el impulso. Pausar antes de reaccionar.</div>
+      </div>
+      <div class="principio-card com">
+        <div class="p-icon">🗣️</div>
+        <div class="p-name com">Comunicación</div>
+        <div class="p-desc">Decir lo que siento antes de que duela. Hablar, no acumular.</div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:24px">Tus seis valores</p>
+    <div class="valores-grid">
+      <div class="valor-pill">
+        <div class="valor-dot" style="background:var(--teal)"></div>
+        <div>
+          <div class="valor-text">Comunicación abierta</div>
+          <div class="valor-hint">Hablar antes de que se acumule</div>
+        </div>
+      </div>
+      <div class="valor-pill">
+        <div class="valor-dot" style="background:var(--teal)"></div>
+        <div>
+          <div class="valor-text">Escucha activa</div>
+          <div class="valor-hint">Entender su mundo, no solo oír</div>
+        </div>
+      </div>
+      <div class="valor-pill">
+        <div class="valor-dot" style="background:var(--purple)"></div>
+        <div>
+          <div class="valor-text">Empatía</div>
+          <div class="valor-hint">Sentir desde su perspectiva</div>
+        </div>
+      </div>
+      <div class="valor-pill">
+        <div class="valor-dot" style="background:var(--purple)"></div>
+        <div>
+          <div class="valor-text">Paciencia</div>
+          <div class="valor-hint">Darle tiempo al proceso de los dos</div>
+        </div>
+      </div>
+      <div class="valor-pill">
+        <div class="valor-dot" style="background:var(--red)"></div>
+        <div>
+          <div class="valor-text">Perdón</div>
+          <div class="valor-hint">Soltar el error, no a la persona</div>
+        </div>
+      </div>
+      <div class="valor-pill">
+        <div class="valor-dot" style="background:var(--red)"></div>
+        <div>
+          <div class="valor-text">Apoyo mutuo</div>
+          <div class="valor-hint">Su crecimiento también es el mío</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px; border-color: rgba(224,92,106,0.2);">
+      <div class="card-title" style="font-size:15px">🫀 Principio maestro</div>
+      <div class="card-sub">Querer que Luisa florezca, no solo que se quede.<br>Cuando la relación se complique, vuelve aquí.</div>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN: CONSEJERO ── -->
+  <section id="consejero" class="section">
+    <p class="section-label">Consejero personal · cuéntame qué pasó</p>
+
+    <div class="suggestions" id="suggestions">
+      <div class="suggestion" onclick="fillSuggestion(this)">Tuvimos una discusión y no sé cómo hablar con Luisa</div>
+      <div class="suggestion" onclick="fillSuggestion(this)">Siento que nos distanciamos últimamente</div>
+      <div class="suggestion" onclick="fillSuggestion(this)">Cometí un error y no sé cómo repararlo</div>
+      <div class="suggestion" onclick="fillSuggestion(this)">Luisa está pasando por algo difícil ¿cómo la apoyo?</div>
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+      <div class="msg ai">
+        <div class="msg-avatar">🫀</div>
+        <div class="msg-bubble">
+          Hola Elio. Soy tu consejero personal, entrenado con tus principios y valores.<br><br>
+          Cuéntame cualquier situación con Luisa — o algo que estés sintiendo — y te diré qué principios aplicar y cómo actuar. Estoy aquí.
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-form">
+      <textarea class="chat-input" id="chatInput" placeholder="Cuéntame qué está pasando con Luisa..." rows="2"
+        onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+      <button class="btn" id="sendBtn" onclick="sendMessage()">
+        <span id="sendLabel">Enviar</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN: LIBROS ── -->
+  <section id="libros" class="section">
+    <p class="section-label">Recomendador de libros · basado en tus principios</p>
+
+    <div class="libros-form">
+      <div>
+        <label>¿Qué situación o tema quieres trabajar?</label>
+        <textarea id="librosSituacion" rows="3"
+          placeholder="Ej: quiero mejorar mi comunicación con Luisa, o quiero entender mejor mis emociones..."></textarea>
+      </div>
+      <div>
+        <label>Enfoque principal</label>
+        <select id="librosEnfoque">
+          <option value="">— Elige un enfoque —</option>
+          <option value="comunicacion">Comunicación y escucha</option>
+          <option value="emociones">Emociones y madurez emocional</option>
+          <option value="pareja">Relaciones de pareja</option>
+          <option value="evolucion personal">Evolución y crecimiento personal</option>
+          <option value="empatia">Empatía y conexión</option>
+          <option value="perdon">Perdón y sanación</option>
+        </select>
+      </div>
+      <button class="btn" id="librosBtn" onclick="getLibros()" style="background:var(--gold); color:#1a1a1a; align-self:flex-start;">
+        <span id="librosLabel">📚 Recomendar libros</span>
+      </button>
+    </div>
+
+    <div class="libros-result" id="librosResult"></div>
+  </section>
+
+</main>
+
+<script>
+// ── Tab switching ──
+function setTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Fill suggestion ──
+function fillSuggestion(el) {
+  document.getElementById('chatInput').value = el.textContent;
+  document.getElementById('chatInput').focus();
+}
+
+// ── Chat with advisor ──
+const SYSTEM_CONSEJERO = `Eres el consejero personal de Elio, un chico de 17 años de Ciudad de México que estudia en la Preparatoria 5 de la UNAM. Elio tiene una relación con su novia Luisa, a quien ama profundamente.
+
+Los PRINCIPIOS que rigen su relación son:
+1. EVOLUCIÓN — cada conflicto debe dejarlos mejores que antes, nunca retroceder
+2. MADUREZ — responder desde la razón, no desde el impulso. Pausar antes de reaccionar
+3. COMUNICACIÓN — decir lo que se siente antes de que duela, hablar en vez de acumular
+
+Sus VALORES son:
+- Comunicación abierta: hablar antes de que se acumule
+- Escucha activa: entender, no solo oír
+- Empatía: sentir desde la perspectiva del otro
+- Paciencia: darle tiempo al proceso
+- Perdón: soltar el error, no a la persona
+- Apoyo mutuo: el crecimiento de Luisa también es el de Elio
+
+Tu forma de responder:
+- Eres cálido, directo y honesto. No das consejos genéricos.
+- Siempre identifica qué principios y valores aplican a la situación que describe Elio.
+- Da pasos concretos y prácticos que Elio puede hacer HOY.
+- Usa el nombre de Luisa cuando sea relevante.
+- Al final de cada respuesta, menciona con etiquetas qué principios/valores aplicar (formato: [PRINCIPIO: nombre] o [VALOR: nombre]).
+- Máximo 200 palabras por respuesta. Sé conciso y poderoso.
+- Escribe en español, tono cercano pero no infantil.`;
+
+let chatHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('sendBtn');
+  const label = document.getElementById('sendLabel');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  // Add user message
+  appendMsg('user', msg);
+  input.value = '';
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Disable button
+  btn.disabled = true;
+  label.innerHTML = '<span class="spinner"></span>';
+
+  // Typing indicator
+  const typingId = appendTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_CONSEJERO,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'No pude procesar tu mensaje. Intenta de nuevo.';
+
+    removeTyping(typingId);
+    chatHistory.push({ role: 'assistant', content: reply });
+    appendMsg('ai', reply);
+  } catch(e) {
+    removeTyping(typingId);
+    appendMsg('ai', 'Hubo un error de conexión. Intenta de nuevo.');
+  }
+
+  btn.disabled = false;
+  label.textContent = 'Enviar';
+}
+
+function appendMsg(role, text) {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  // Parse tags like [PRINCIPIO: x] and [VALOR: x]
+  let processed = text
+    .replace(/\[PRINCIPIO:\s*([^\]]+)\]/g, '<span class="msg-tag">$1</span>')
+    .replace(/\[VALOR:\s*([^\]]+)\]/g, '<span class="msg-tag teal">$1</span>');
+
+  // Replace newlines
+  processed = processed.replace(/\n/g, '<br>');
+
+  div.innerHTML = `
+    <div class="msg-avatar">${role === 'ai' ? '🫀' : 'E'}</div>
+    <div class="msg-bubble">${processed}</div>
+  `;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
+function appendTyping() {
+  const win = document.getElementById('chatWindow');
+  const id = 'typing-' + Date.now();
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = id;
+  div.innerHTML = `
+    <div class="msg-avatar">🫀</div>
+    <div class="msg-bubble" style="color:var(--text-muted)">Pensando...</div>
+  `;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ── Libros ──
+const SYSTEM_LIBROS = `Eres un recomendador de libros para Elio, 17 años, CDMX. Elio trabaja sus principios de EVOLUCIÓN, MADUREZ y COMUNICACIÓN en su relación con Luisa.
+
+Cuando te dé una situación o tema, recomienda exactamente 4 libros. Para cada libro devuelve JSON con este formato exacto:
+[
+  {
+    "titulo": "Nombre del libro",
+    "autor": "Autor",
+    "por_que": "Por qué le sirve a Elio específicamente (2 oraciones máx)",
+    "tags": ["tag1", "tag2"]
+  }
+]
+
+Solo responde con el JSON, sin texto extra, sin backticks, sin markdown.`;
+
+async function getLibros() {
+  const situacion = document.getElementById('librosSituacion').value.trim();
+  const enfoque = document.getElementById('librosEnfoque').value;
+  if (!situacion && !enfoque) {
+    alert('Escribe una situación o elige un enfoque primero.');
+    return;
+  }
+
+  const btn = document.getElementById('librosBtn');
+  const label = document.getElementById('librosLabel');
+  btn.disabled = true;
+  label.innerHTML = '<span class="spinner"></span> Buscando libros...';
+
+  const prompt = `Situación de Elio: ${situacion || 'quiero mejorar mi relación en general'}. Enfoque principal: ${enfoque || 'relaciones de pareja'}.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_LIBROS,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    let raw = data.content?.[0]?.text || '[]';
+    raw = raw.replace(/```json|```/g, '').trim();
+    const libros = JSON.parse(raw);
+    renderLibros(libros);
+  } catch(e) {
+    document.getElementById('librosResult').style.display = 'block';
+    document.getElementById('librosResult').innerHTML = `<div class="card" style="color:var(--red)">Error al obtener recomendaciones. Intenta de nuevo.</div>`;
+  }
+
+  btn.disabled = false;
+  label.textContent = '📚 Recomendar libros';
+}
+
+function renderLibros(libros) {
+  const el = document.getElementById('librosResult');
+  el.style.display = 'block';
+  el.innerHTML = `<p class="section-label">Libros recomendados para ti</p>` +
+    libros.map((l, i) => `
+      <div class="libro-card">
+        <div class="libro-num">${i+1}</div>
+        <div class="libro-info">
+          <div class="libro-title">${l.titulo}</div>
+          <div class="libro-author">${l.autor}</div>
+          <div class="libro-why">${l.por_que}</div>
+          <div class="libro-tags">${(l.tags||[]).map(t=>`<span class="libro-tag">${t}</span>`).join('')}</div>
+        </div>
+      </div>
+    `).join('');
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
